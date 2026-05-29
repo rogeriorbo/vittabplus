@@ -47,7 +47,7 @@ export default defineConfig(() => {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
-      allowedHosts: ['vittabplus.deioinfo.com.br', 'localhost', 'ais-dev-i54ntxhtjecn4bvjnk6ymz-142232009991.us-east1.run.app'],
+      allowedHosts: true,
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
