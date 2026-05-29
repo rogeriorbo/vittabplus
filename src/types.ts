@@ -1,3 +1,14 @@
+export interface AppUser {
+  id: string;
+  email: string;
+  password: string;
+  name: string;
+  surname: string;
+  birthDate: string;
+  height?: number;
+  weight?: number;
+}
+
 export interface BloodPressureReading {
   id: string;
   systolic: number; // e.g., 120

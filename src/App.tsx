@@ -39,12 +39,13 @@ import {
   ShieldAlert
 } from "lucide-react";
 
-import { BloodPressureReading, GlucoseReading, HabitAlert, MySQLConfig as MySQLConfigType, UserProfile, WeightReading, SavedAccount } from "./types";
+import { BloodPressureReading, GlucoseReading, HabitAlert, MySQLConfig as MySQLConfigType, UserProfile, WeightReading, AppUser } from "./types";
 import { exportToCSV, getMealStateLabel } from "./utils/export";
 
 const vittabpLogo = "/src/assets/images/vittabp_white_logo_1779465910916.png";
 
 // Import components
+import AuthModal from "./components/AuthModal";
 import MySQLConfig from "./components/MySQLConfig";
 import AddReadingModal from "./components/AddReadingModal";
 import AlertManager from "./components/AlertManager";
@@ -54,6 +55,7 @@ import EditReadingModal from "./components/EditReadingModal";
 import MobileHub from "./components/MobileHub";
 import ProfileView from "./components/ProfileView";
 import ExportPDFModal from "./components/ExportPDFModal";
+import LandingPage from "./components/LandingPage";
 
 export default function App() {
   // 1. Core clinical logs state
@@ -81,74 +83,75 @@ export default function App() {
   // 5. Active Alarm simulated banner state
   const [activeNotification, setActiveNotification] = useState<HabitAlert | null>(null);
 
-  // 6. User profile state with Google Auth simulation
-  const [googleUser, setGoogleUser] = useState<{
-    email: string;
-    name: string;
-    photoUrl: string;
-    loggedIn: boolean;
-  }>(() => {
-    const cached = localStorage.getItem("vittabp_google_user");
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached);
-        if (parsed && typeof parsed === 'object') return parsed;
-      } catch (e) {}
-    }
-    return {
-      email: "",
-      name: "",
-      photoUrl: "",
-      loggedIn: false
-    };
+  // 6. User authentication state
+  const [allUsers, setAllUsers] = useState<AppUser[]>(() => {
+    const cached = localStorage.getItem("vittabp_users");
+    return cached ? JSON.parse(cached) : [];
   });
-
-  const [savedAccounts, setSavedAccounts] = useState<SavedAccount[]>(() => {
-    const cachedList = localStorage.getItem("vittabp_saved_accounts");
-    if (cachedList) {
-      try {
-        const parsed = JSON.parse(cachedList);
-        if (Array.isArray(parsed)) return parsed;
-      } catch (e) {}
-    }
-    return [
-      { email: "deiorbo@gmail.com", name: "deiorbo", isAdmin: true },
-      { email: "oliveiradropshop@gmail.com", name: "Oliveira Dropshop", isAdmin: false }
-    ];
+  const [currentUser, setCurrentUser] = useState<AppUser | null>(() => {
+    const cached = localStorage.getItem("vittabp_current_user");
+    return cached ? JSON.parse(cached) : null;
   });
   
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isGoogleAuthOpen, setIsGoogleAuthOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(!localStorage.getItem("vittabp_current_user"));
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [authLoading, setAuthLoading] = useState(false);
   
-  // Custom auth additions
-  const [customLoginEmail, setCustomLoginEmail] = useState("");
-  const [customLoginName, setCustomLoginName] = useState("");
+  const currentUserEmail = currentUser ? currentUser.email : "";
 
-  // Google Multi-step Auth Additions (Google Password & Mobile Fingerprint Biometrics)
-  const [authStep, setAuthStep] = useState<'choose' | 'password' | 'biometric'>('choose');
-  const [selectedAccount, setSelectedAccount] = useState<SavedAccount | null>(null);
-  const [googlePassword, setGooglePassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [passwordError, setPasswordError] = useState("");
-  const [biometricScanning, setBiometricScanning] = useState(false);
-  const [biometricProgress, setBiometricProgress] = useState(0);
-  const [biometricSuccess, setBiometricSuccess] = useState(false);
-
-  useEffect(() => {
-    if (!isGoogleAuthOpen) {
-      setAuthStep("choose");
-      setSelectedAccount(null);
-      setGooglePassword("");
-      setShowPassword(false);
-      setPasswordError("");
-      setBiometricScanning(false);
-      setBiometricProgress(0);
-      setBiometricSuccess(false);
+  // Automated Admin identification shortcut
+  const handleAdminSignIn = (email = "deiorbo@gmail.com", name = "deiorbo") => {
+    let user = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (!user) {
+      user = {
+        id: 'u-admin-' + Date.now(),
+        name,
+        surname: 'Administrador',
+        birthDate: '1988-06-15',
+        email,
+        password: 'admin-simulated',
+        height: 175,
+        weight: 75
+      };
+      setAllUsers(prev => {
+        const next = [...prev, user!];
+        localStorage.setItem("vittabp_users", JSON.stringify(next));
+        return next;
+      });
     }
-  }, [isGoogleAuthOpen]);
+    setCurrentUser(user);
+    localStorage.setItem("vittabp_current_user", JSON.stringify(user));
+    setIsAuthModalOpen(false);
+  };
 
-  const currentUserEmail = googleUser.loggedIn ? googleUser.email : "";
+  // Automated anonymous patient demonstration shortcut (Bypass)
+  const handleDemoSignIn = () => {
+    const email = "paciente.demo@vittabp.com.br";
+    const name = "Carlos";
+    const surname = "Menezes";
+    let user = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (!user) {
+      user = {
+        id: 'u-demo-' + Date.now(),
+        name,
+        surname,
+        birthDate: '1990-04-12',
+        email,
+        password: 'demo-simulated',
+        height: 178,
+        weight: 82
+      };
+      setAllUsers(prev => {
+        const next = [...prev, user!];
+        localStorage.setItem("vittabp_users", JSON.stringify(next));
+        return next;
+      });
+    }
+    setCurrentUser(user);
+    localStorage.setItem("vittabp_current_user", JSON.stringify(user));
+    setIsAuthModalOpen(false);
+  };
 
   // Edit reading states
   const [editingReading, setEditingReading] = useState<any | null>(null);
@@ -161,7 +164,7 @@ export default function App() {
 
   // Close Login & Profile Dropdowns when active menu/tab changes
   useEffect(() => {
-    setIsGoogleAuthOpen(false);
+    setIsAuthModalOpen(false);
     setIsProfileOpen(false);
   }, [activeMobileTab]);
 
@@ -269,6 +272,12 @@ export default function App() {
     const cachedMysql = localStorage.getItem(getStorageKey("smartbp_mysql_config"));
     const cachedProfile = localStorage.getItem(getStorageKey("smartbp_user_profile"));
 
+    // Securely retrieve the exact active user object from registration or login cache
+    const activeUser = (() => {
+      const cached = localStorage.getItem("vittabp_current_user");
+      return cached ? JSON.parse(cached) : null;
+    })();
+
     if (cachedBp) setBpReadings(JSON.parse(cachedBp));
     else {
       // Default placeholder data only for guest, empty for logged in users
@@ -292,11 +301,23 @@ export default function App() {
 
     if (cachedWeight) setWeightReadings(JSON.parse(cachedWeight));
     else {
-      const initialWeight: WeightReading[] = currentUserEmail ? [] : [
-        { id: "wt-1", weight: 75.5, notes: "Peso inicial", measuredAt: new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString() },
-        { id: "wt-2", weight: 74.8, notes: "Após exercícios da semana", measuredAt: new Date(Date.now() - 15 * 24 * 3600 * 1000).toISOString() },
-        { id: "wt-3", weight: 74.2, notes: "Manhã em jejum", measuredAt: new Date().toISOString() }
-      ];
+      let initialWeight: WeightReading[] = [];
+      if (activeUser && activeUser.weight) {
+        initialWeight = [
+          {
+            id: `wt-${Date.now()}`,
+            weight: Number(activeUser.weight),
+            notes: "Peso inicial transferido automaticamente do cadastro",
+            measuredAt: new Date().toISOString()
+          }
+        ];
+      } else if (!activeUser) {
+        initialWeight = [
+          { id: "wt-1", weight: 75.5, notes: "Peso inicial", measuredAt: new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString() },
+          { id: "wt-2", weight: 74.8, notes: "Após exercícios da semana", measuredAt: new Date(Date.now() - 15 * 24 * 3600 * 1000).toISOString() },
+          { id: "wt-3", weight: 74.2, notes: "Manhã em jejum", measuredAt: new Date().toISOString() }
+        ];
+      }
       setWeightReadings(initialWeight);
       localStorage.setItem(getStorageKey("smartbp_weight_readings"), JSON.stringify(initialWeight));
     }
@@ -344,11 +365,15 @@ export default function App() {
       setProfile(JSON.parse(cachedProfile));
     } else {
       const initialProfile = {
-        name: currentUserEmail ? currentUserEmail.substring(0, currentUserEmail.indexOf("@")) : "Paciente Exemplo",
-        birthDate: "1988-06-15",
-        additionalInfo: currentUserEmail ? "" : "Histórico preventivo de controle de pressão arterial. Prática de exercícios regulares de intensidade moderada.",
-        height: 175,
-        weight: 75
+        name: activeUser 
+          ? `${activeUser.name} ${activeUser.surname}`.trim() 
+          : (currentUserEmail ? currentUserEmail.substring(0, currentUserEmail.indexOf("@")) : "Paciente Exemplo"),
+        birthDate: activeUser?.birthDate || "1988-06-15",
+        additionalInfo: activeUser 
+          ? "Ficha de prontuário clínico preventivo iniciada automaticamente no cadastro do usuário." 
+          : "Histórico preventivo de controle de pressão arterial. Prática de exercícios regulares de intensidade moderada.",
+        height: activeUser?.height ? Number(activeUser.height) : 175,
+        weight: activeUser?.weight ? Number(activeUser.weight) : 75
       };
       setProfile(initialProfile);
       localStorage.setItem(getStorageKey("smartbp_user_profile"), JSON.stringify(initialProfile));
@@ -397,6 +422,31 @@ export default function App() {
   const saveProfile = (updated: UserProfile) => {
     setProfile(updated);
     localStorage.setItem(getStorageKey("smartbp_user_profile"), JSON.stringify(updated));
+
+    // Also sync changes back to the active user account credentials dynamically
+    if (currentUser) {
+      const parts = updated.name.trim().split(/\s+/);
+      const updatedName = parts[0] || currentUser.name;
+      const updatedSurname = parts.slice(1).join(" ") || currentUser.surname;
+
+      const updatedUser: AppUser = {
+        ...currentUser,
+        name: updatedName,
+        surname: updatedSurname,
+        birthDate: updated.birthDate || currentUser.birthDate,
+        height: updated.height || currentUser.height,
+        weight: updated.weight || currentUser.weight,
+      };
+
+      setCurrentUser(updatedUser);
+      localStorage.setItem("vittabp_current_user", JSON.stringify(updatedUser));
+
+      setAllUsers(prev => {
+        const next = prev.map(u => u.email.toLowerCase() === currentUser.email.toLowerCase() ? updatedUser : u);
+        localStorage.setItem("vittabp_users", JSON.stringify(next));
+        return next;
+      });
+    }
   };
 
   // Actions
@@ -483,152 +533,33 @@ export default function App() {
     setDeleteConfirmation(null);
   };
 
-  // Google Password & Biometric Authorization Actions
-  const handleInitiateSignIn = (email: string, name: string) => {
-    setSelectedAccount({
-      email: email.trim().toLowerCase(),
-      name: name.trim() || email.substring(0, email.indexOf("@"))
+  // Authentication Actions
+  const handleRegister = async (newUser: AppUser) => {
+     setAllUsers(prev => {
+        const next = [...prev, newUser];
+        localStorage.setItem("vittabp_users", JSON.stringify(next));
+        return next;
     });
-    setGooglePassword("");
-    setPasswordError("");
-    setAuthStep("password");
+    setCurrentUser(newUser);
+    localStorage.setItem("vittabp_current_user", JSON.stringify(newUser));
+    setIsAuthModalOpen(false);
   };
 
-  const handleVerifyPassword = () => {
-    if (!googlePassword || googlePassword.trim().length < 4) {
-      setPasswordError("Insira a senha da sua Conta Google (mínimo 4 caracteres).");
-      return;
+  const handleLogin = async (email: string, password: string) => {
+    const user = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+    if (user) {
+        setCurrentUser(user);
+        localStorage.setItem("vittabp_current_user", JSON.stringify(user));
+        setIsAuthModalOpen(false);
+    } else {
+        alert("Credenciais inválidas");
     }
-    setPasswordError("");
-    setAuthLoading(true);
-
-    setTimeout(() => {
-      if (selectedAccount) {
-        handleGoogleSignIn(selectedAccount.email, selectedAccount.name);
-      }
-    }, 1100);
   };
 
-  const handleStartBiometricScan = () => {
-    if (biometricScanning || biometricSuccess) return;
-    setBiometricScanning(true);
-    setBiometricProgress(0);
-    setBiometricSuccess(false);
-
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 4;
-      if (progress > 100) progress = 100;
-      setBiometricProgress(progress);
-
-      if (progress >= 100) {
-        clearInterval(interval);
-        setBiometricSuccess(true);
-        setBiometricScanning(false);
-        
-        // Wait 1 second to let user see success state before login completing
-        setTimeout(() => {
-          if (selectedAccount) {
-            handleGoogleSignIn(selectedAccount.email, selectedAccount.name);
-          }
-        }, 1100);
-      }
-    }, 70);
-  };
-
-  // Google Sign In / Sign Out Actions
-  const handleGoogleSignIn = (email: string, name: string) => {
-    setAuthLoading(true);
-    // Simulate real OAuth handshake latency for authenticity
-    setTimeout(() => {
-      const u = {
-        email: email,
-        name: name || email.substring(0, email.indexOf("@")),
-        photoUrl: "",
-        loggedIn: true
-      };
-      setGoogleUser(u);
-      localStorage.setItem("vittabp_google_user", JSON.stringify(u));
-      localStorage.setItem("smartbp_user_email", email);
-
-      // Save to saved accounts list if it doesn't exist
-      setSavedAccounts(prev => {
-        const emailLower = email.toLowerCase();
-        const exists = prev.some(acc => acc.email.toLowerCase() === emailLower);
-        if (!exists) {
-          const updated = [...prev, {
-            email: emailLower,
-            name: name || email.substring(0, email.indexOf("@")),
-            isAdmin: emailLower === "deiorbo@gmail.com"
-          }];
-          localStorage.setItem("vittabp_saved_accounts", JSON.stringify(updated));
-          return updated;
-        }
-        return prev;
-      });
-
-      // Clear local memory first to ensure private history isolation
-      setBpReadings([]);
-      setGlucoseReadings([]);
-      
-      // Pull and sync remote data right away
-      if (mysqlConfig.isConfigured) {
-        fetch("/api/mysql/sync", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            config: mysqlConfig,
-            bpReadings: [], // push empty to just pull remote history based on user
-            glucoseReadings: [],
-            userId: email
-          })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.success) {
-            handleSyncComplete(data.bpReadings || [], data.glucoseReadings || []);
-          }
-        })
-        .catch(err => {
-          console.error("Failed to load user historical records.", err);
-        })
-        .finally(() => {
-          setAuthLoading(false);
-          setIsGoogleAuthOpen(false);
-          setIsProfileOpen(false);
-        });
-      } else {
-        setAuthLoading(false);
-        setIsGoogleAuthOpen(false);
-        setIsProfileOpen(false);
-      }
-    }, 850);
-  };
-
-  const handleGoogleSignOut = () => {
-    const u = {
-      email: "",
-      name: "",
-      photoUrl: "",
-      loggedIn: false
-    };
-    setGoogleUser(u);
-    localStorage.setItem("vittabp_google_user", JSON.stringify(u));
-    localStorage.setItem("smartbp_user_email", "");
-    setIsProfileOpen(false);
-  };
-
-  const handleForgetAccount = (email: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Avoid triggering login click handler
-    
-    const updated = savedAccounts.filter(acc => acc.email.toLowerCase() !== email.toLowerCase());
-    setSavedAccounts(updated);
-    localStorage.setItem("vittabp_saved_accounts", JSON.stringify(updated));
-
-    // If the forgotten account is the currently logged-in one, sign out
-    if (googleUser.loggedIn && googleUser.email.toLowerCase() === email.toLowerCase()) {
-      handleGoogleSignOut();
-    }
+  const handleLogout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem("vittabp_current_user");
+    setIsAuthModalOpen(true);
   };
 
   // Edit Reading handlers
@@ -865,80 +796,25 @@ export default function App() {
     return matchesSearch && matchesType;
   });
 
+  if (!currentUser) {
+    return (
+      <LandingPage
+        onLogin={handleLogin}
+        onRegister={handleRegister}
+        onAdminSignIn={() => handleAdminSignIn("deiorbo@gmail.com", "deiorbo")}
+        onDemoSignIn={handleDemoSignIn}
+        authLoading={authLoading}
+      />
+    );
+  }
+
   return (
+    <>
     <div className={`min-h-screen bg-slate-50/50 ${isFooterFixed ? 'pb-24 md:pb-16' : 'pb-6'} font-sans`}>
-      {!googleUser.loggedIn ? (
-        <div className="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-between overflow-y-auto animate-fadeIn pb-8 sm:pb-12">
-          {/* Top Decorative Graphic */}
-          <div className="w-full relative shrink-0">
-            <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-br from-teal-500/20 to-indigo-500/10 rounded-b-[40px] z-0" />
-            <div className="pt-20 pb-8 relative z-10 flex flex-col items-center">
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-white shadow-2xl shadow-teal-500/20 flex items-center justify-center border border-teal-50 p-4 mb-8">
-                <img src={vittabpLogo} alt="VittaBP" className="w-full h-full object-contain" />
-              </div>
-              <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight text-center px-6">
-                Sua saúde na<br/>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-indigo-600">palma da mão.</span>
-              </h1>
-              <p className="mt-4 text-center text-slate-500 text-sm sm:text-base px-8 max-w-sm">
-                Monitore sua pressão arterial, glicemia e rotinas diárias num ambiente seguro e 100% privado.
-              </p>
-            </div>
-          </div>
-          
-          {/* Presentation Cards / Features */}
-          <div className="w-full max-w-sm px-6 space-y-4 mb-auto pt-4 relative z-10">
-            <div className="flex items-center p-4 bg-white shadow-sm border border-slate-100 rounded-2xl gap-4">
-              <div className="w-12 h-12 rounded-xl bg-teal-50 flex items-center justify-center shrink-0">
-                <Database className="w-6 h-6 text-teal-600" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-slate-800 text-sm">Privacidade Total</h3>
-                <p className="text-[11px] sm:text-xs text-slate-500 leading-tight">Seus dados ficam sincronizados exclusivamente na sua conta pessoal isolada.</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center p-4 bg-white shadow-sm border border-slate-100 rounded-2xl gap-4">
-              <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center shrink-0">
-                <Activity className="w-6 h-6 text-indigo-600" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-slate-800 text-sm">IA Preventiva</h3>
-                <p className="text-[11px] sm:text-xs text-slate-500 leading-tight">Receba orientações instantâneas sob medida pelas suas metricas clínicas.</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center p-4 bg-white shadow-sm border border-slate-100 rounded-2xl gap-4">
-              <div className="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center shrink-0">
-                <ShieldAlert className="w-6 h-6 text-rose-600" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-slate-800 text-sm">Alertas Médicos</h3>
-                <p className="text-[11px] sm:text-xs text-slate-500 leading-tight">Agende notificações de rotinas dos seus medicamentos para nunca mais esquecer.</p>
-              </div>
-            </div>
-          </div>
-          
-          {/* Action Area */}
-          <div className="w-full max-w-sm px-6 mt-12 relative z-10 shrink-0">
-            <div className="group relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-teal-500 to-indigo-500 rounded-2xl blur-md opacity-25 group-hover:opacity-40 transition duration-200"></div>
-              <button 
-                onClick={() => setIsGoogleAuthOpen(true)}
-                className="relative w-full py-4 bg-[#0f172a] hover:bg-slate-800 text-white rounded-2xl text-sm sm:text-base font-bold shadow-xl active:scale-95 transition-all text-center flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <LogIn className="w-5 h-5" />
-                Continuar com Login / Criar Conta
-              </button>
-            </div>
-            
-            <p className="text-center text-[10px] sm:text-[11px] text-slate-400 font-medium mt-6 px-4">
-              Ao acessar, você autoriza e aceita os termos e assegura uso exclusivo dos dados para fim médico preventivo assistencial.
-            </p>
-          </div>
-        </div>
-      ) : (
-        <>
+      <AuthModal isOpen={isAuthModalOpen} onLogin={handleLogin} onRegister={handleRegister} />
+      
+      {/* Main Container */}
+      <div className={`max-w-7xl mx-auto px-2 sm:px-4 mt-4 md:mt-8 space-y-6 md:space-y-8 ${isAuthModalOpen ? 'opacity-20 pointer-events-none' : ''}`}>
           {/* Dynamic Simulated Alarm banner overlay */}
       {activeNotification && (
         <div id="delete-confirmation-modal" className="fixed bottom-36 md:bottom-20 right-4 left-4 md:left-auto md:right-6 z-60 max-w-sm bg-slate-900 text-white rounded-2xl shadow-2xl p-4 border border-rose-500/20 animate-shake">
@@ -1020,47 +896,43 @@ export default function App() {
 
 
 
-            {/* Authentic Google Authentication Client Button & Profile Menu */}
+            {/* User Session Profile Menu Button */}
             <div className="relative">
-              {googleUser.loggedIn ? (
+              {currentUser ? (
                 <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                   className="flex items-center space-x-2 p-1.5 hover:bg-slate-50 border border-slate-200 rounded-full transition duration-200 cursor-pointer text-xs"
                 >
-                  {/* Google Profile Custom Letter Avatar Circle */}
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white font-extrabold shadow-sm ${
-                    googleUser.email === "deiorbo@gmail.com" 
+                    currentUser.email === "deiorbo@gmail.com" 
                       ? "bg-gradient-to-tr from-teal-650 to-teal-500" 
                       : "bg-gradient-to-tr from-indigo-500 to-indigo-400"
                   }`}>
-                    {googleUser.name ? googleUser.name.charAt(0).toUpperCase() : "G"}
+                    {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : "U"}
                   </div>
                   
                   <span className="font-bold text-slate-700 hidden xs:inline pr-1 max-w-[100px] truncate">
-                    {googleUser.name}
+                    {currentUser.name}
                   </span>
 
-                  {googleUser.email === "deiorbo@gmail.com" && (
+                  {currentUser.email === "deiorbo@gmail.com" && (
                     <span className="hidden sm:inline bg-teal-600 text-[8px] uppercase tracking-wider font-extrabold text-white px-1.5 py-0.5 rounded-full shrink-0 mr-1 shadow-xs">
                       Admin
                     </span>
                   )}
                 </button>
               ) : (
-                  <button
-                    onClick={() => setIsGoogleAuthOpen(true)}
-                    className="flex items-center space-x-2 bg-white hover:bg-slate-50 border border-slate-400 text-black px-3 py-1.5 rounded-xl text-[11px] font-black transition shadow-xs cursor-pointer duration-200 active:scale-95"
-                  >
-                  {/* Standard Google Multi-colored SVG G Logo */}
-                  <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" width="16" height="16">
-                    <path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114-3.57 0-6.477-2.907-6.477-6.477s2.907-6.477 6.477-6.477c1.614 0 3.086.59 4.227 1.568l3.193-3.193C19.223 1.95 15.918 1 12.24 1 6.033 1 1 6.033 1 12.24s5.033 11.24 11.24 11.24c5.895 0 10.865-4.043 10.865-11.24 0-.744-.067-1.464-.19-1.955H12.24z"/>
-                  </svg>
-                  <span>Fazer login com o Google</span>
+                <button
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-xl text-[11px] font-black transition shadow-xs cursor-pointer duration-200 active:scale-95"
+                >
+                  <LogIn className="w-3.5 h-3.5 shrink-0" />
+                  <span>Acessar Conta</span>
                 </button>
               )}
 
               {/* Account Dropdown Details Card */}
-              {isProfileOpen && googleUser.loggedIn && (
+              {isProfileOpen && currentUser && (
                 <>
                   {/* Invisible screen backdrop to capture click-outside */}
                   <div 
@@ -1068,58 +940,47 @@ export default function App() {
                     onClick={() => setIsProfileOpen(false)} 
                   />
                   <div className="absolute right-0 mt-2.5 w-76 bg-white border border-slate-150 rounded-2xl shadow-xl p-4 space-y-4.5 z-50 text-xs text-slate-700 animate-fadeIn">
-                  <div className="text-center pb-3 border-b border-slate-100">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Conta do Google protegida</span>
-                    
-                    <div className="flex justify-center mb-2">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-black shadow-md ${
-                        googleUser.email === "deiorbo@gmail.com" 
-                          ? "bg-gradient-to-tr from-teal-600 to-teal-400" 
-                          : "bg-gradient-to-tr from-indigo-505 to-indigo-400"
-                      }`}>
-                        {googleUser.name ? googleUser.name.charAt(0).toUpperCase() : "G"}
+                    <div className="text-center pb-3 border-b border-slate-100">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Sessão Ativa</span>
+                      
+                      <div className="flex justify-center mb-2">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-black shadow-md ${
+                          currentUser?.email === "deiorbo@gmail.com" 
+                            ? "bg-gradient-to-tr from-teal-600 to-teal-400" 
+                            : "bg-gradient-to-tr from-indigo-505 to-indigo-400"
+                        }`}>
+                          {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : "U"}
+                        </div>
+                      </div>
+                      
+                      <h4 className="font-bold text-sm text-slate-800">{currentUser?.name || "Usuário"}</h4>
+                      <span className="text-[11px] text-slate-400 font-mono block truncate">{currentUser?.email}</span>
+                      
+                      <div className="mt-2 inline-flex items-center space-x-1 px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-bold border border-emerald-100/50">
+                        <ShieldCheck className="w-3 h-3 text-emerald-500 shrink-0" />
+                        <span>Sessão Ativa Segura</span>
                       </div>
                     </div>
                     
-                    <h4 className="font-bold text-sm text-slate-800">{googleUser.name || "Usuário da Conta"}</h4>
-                    <span className="text-[11px] text-slate-400 font-mono block truncate">{googleUser.email}</span>
-                    
-                    <div className="mt-2 inline-flex items-center space-x-1 px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-bold border border-emerald-100/50">
-                      <ShieldCheck className="w-3 h-3 text-emerald-500 shrink-0" />
-                      <span>Sessão Ativa Segura</span>
+                    <div className="space-y-2">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full py-2.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 cursor-pointer duration-150"
+                      >
+                        <LogOut className="w-3.5 h-3.5 shrink-0" />
+                        <span>Sair da Conta</span>
+                      </button>
                     </div>
                   </div>
-                  
-                  <div className="space-y-2">
-                    <button
-                      onClick={() => setIsGoogleAuthOpen(true)}
-                      className="w-full text-left p-2.5 rounded-xl border border-slate-150 hover:bg-slate-50 flex items-center justify-between transition cursor-pointer"
-                    >
-                      <div>
-                        <span className="block font-black text-slate-900 text-[11px]">Alternar Conta do Google</span>
-                        <span className="text-[9px] text-slate-600 block mt-0.5 font-medium">Fazer login com outra credencial</span>
-                      </div>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    </button>
-
-                    <button
-                      onClick={handleGoogleSignOut}
-                      className="w-full py-2.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 cursor-pointer duration-150"
-                    >
-                      <LogOut className="w-3.5 h-3.5 shrink-0" />
-                      <span>Sair da Conta Google</span>
-                    </button>
-                  </div>
-                </div>
                 </>
               )}
             </div>
           </div>
         </div>
       </header>
-
+      
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-2 sm:px-4 mt-4 md:mt-8 space-y-6 md:space-y-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 mt-4 md:mt-8 space-y-6 md:space-y-8">
         
         {/* Row 2: General Stats & Graphics visualization */}
         <div className={activeMobileTab === 'dashboard' ? 'block animate-fadeIn' : 'hidden'}>
@@ -1357,10 +1218,10 @@ export default function App() {
                       </div>
                       
                       <button
-                        onClick={() => handleGoogleSignIn("deiorbo@gmail.com", "deiorbo")}
+                        onClick={() => handleAdminSignIn("deiorbo@gmail.com", "deiorbo")}
                         className="px-2.5 sm:px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 text-[10px] sm:text-[11px] rounded-lg font-bold transition cursor-pointer shrink-0 w-full sm:w-auto"
                       >
-                        Conectar deiorbo@gmail.com
+                        Identificar Administrador
                       </button>
                     </div>
                   )}
@@ -1404,19 +1265,19 @@ export default function App() {
             {/* Profile Section */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
               <div className="p-5 bg-slate-50/50 border-b border-slate-100">
-                {googleUser.loggedIn ? (
+                {currentUser ? (
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-teal-500 to-indigo-500 flex items-center justify-center text-white font-black text-lg shadow-sm border-2 border-white">
-                        {googleUser.name ? googleUser.name.charAt(0).toUpperCase() : "G"}
+                        {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : "U"}
                       </div>
                       <div>
-                        <span className="block font-black text-slate-800 text-sm">{googleUser.name}</span>
-                        <span className="block text-[10px] text-slate-400 font-mono italic">{googleUser.email}</span>
+                        <span className="block font-black text-slate-800 text-sm">{currentUser.name}</span>
+                        <span className="block text-[10px] text-slate-400 font-mono italic">{currentUser.email}</span>
                       </div>
                     </div>
                     <button
-                      onClick={handleGoogleSignOut}
+                      onClick={handleLogout}
                       className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-[10px] font-bold rounded-lg transition"
                     >
                       Sair
@@ -1429,14 +1290,14 @@ export default function App() {
                     </div>
                     <div className="space-y-1">
                       <p className="text-xs font-bold text-slate-700">Conta não conectada</p>
-                      <p className="text-[10px] text-slate-400 max-w-[200px]">Conecte sua conta Google para sincronização segura.</p>
+                      <p className="text-[10px] text-slate-400 max-w-[200px]">Faça login ou crie uma conta para sincronização segura dos seus dados.</p>
                     </div>
                     <button
-                      onClick={() => setIsGoogleAuthOpen(true)}
+                      onClick={() => setIsAuthModalOpen(true)}
                       className="w-full max-w-[200px] py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] uppercase tracking-wider rounded-xl transition flex items-center justify-center space-x-2"
                     >
                       <LogIn className="w-3.5 h-3.5" />
-                      <span>Conectar Google</span>
+                      <span>Fazer Login / Cadastrar</span>
                     </button>
                   </div>
                 )}
@@ -1681,8 +1542,7 @@ export default function App() {
           </div>
           <span className="text-[10px] text-slate-400 shrink-0">VittaBP v2.5 Prontuário</span>
         </div>
-      </main>
-
+        
       {/* Dynamic Tabbed Bottom Navigation Bar (Fixed or static based on user setting) */}
       <nav 
         id="footer-navigation" 
@@ -1865,7 +1725,7 @@ export default function App() {
 
       {/* Clear All Confirmation Modal */}
       {clearAllConfirmation && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn">
+        <><div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn">
           <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-150 w-full max-w-md overflow-hidden animate-slideUp p-5 sm:p-6 space-y-4">
             
             <div className="flex items-start space-x-3.5 pt-1 text-left">
@@ -1907,352 +1767,11 @@ export default function App() {
               </button>
             </div>
           </div>
-        </div>
+        </div></>
       )}
-        </>
-      )}
-
-      {/* Authentic Google Authentication Chooser Popup Modal */}
-      {isGoogleAuthOpen && (
-        <div 
-          onClick={() => setIsGoogleAuthOpen(false)}
-          className="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn cursor-default"
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-t-3xl sm:rounded-3xl rounded-b-none sm:rounded-b-3xl shadow-2xl border border-slate-100 w-full max-w-md max-h-[90vh] sm:max-h-none overflow-y-auto overflow-x-hidden animate-slideUp p-6 pb-12 sm:p-8 relative"
-          >
-            {/* Visual drag handle for mobile */}
-            <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6 sm:hidden shrink-0 sticky top-0" />
-            
-            {/* Close pop up button */}
-            <button 
-              onClick={() => setIsGoogleAuthOpen(false)}
-              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-1.5 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-full sm:rounded-lg transition z-10 cursor-pointer"
-            >
-              <X className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
-            </button>
-
-            {/* Google Logo header */}
-            <div className="text-center space-y-2 mb-6">
-              <div className="flex justify-center">
-                {/* Large responsive authentic Google logo symbol */}
-                <svg className="w-9 h-9" viewBox="0 0 24 24">
-                  <path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114-3.57 0-6.477-2.907-6.477-6.477s2.907-6.477 6.477-6.477c1.614 0 3.086.59 4.227 1.568l3.193-3.193C19.223 1.95 15.918 1 12.24 1 6.033 1 1 6.033 1 12.24s5.033 11.24 11.24 11.24c5.895 0 10.865-4.043 10.865-11.24 0-.744-.067-1.464-.19-1.955H12.24z"/>
-                </svg>
-              </div>
-              <h3 className="font-extrabold text-slate-800 text-base">Fazer login com o Google</h3>
-              <p className="text-[11px] text-slate-400">para prosseguir de forma segura no VittaBP</p>
-            </div>
-
-            {authLoading ? (
-              <div className="py-10 text-center space-y-4 animate-fadeIn">
-                <div className="inline-block w-8 h-8 border-4 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-xs font-bold text-slate-700">Conectando de forma segura ao Google...</p>
-                <div className="text-[9px] text-slate-400 font-mono tracking-wider">CONEXÃO CRIPTOGRAFADA TLS 1.3</div>
-              </div>
-            ) : authStep === "choose" ? (
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <span className="block text-[9px] uppercase font-mono font-bold text-slate-400 mb-1">Selecione uma conta:</span>
-                  
-                  {savedAccounts.length === 0 ? (
-                    <p className="text-[11px] text-slate-500 py-3 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                      Nenhuma conta salva neste dispositivo.
-                    </p>
-                  ) : (
-                    savedAccounts.map((acc) => {
-                      const initial = acc.name ? acc.name.charAt(0).toUpperCase() : acc.email.charAt(0).toUpperCase();
-                      const avatarBg = acc.email.toLowerCase() === "deiorbo@gmail.com" ? "bg-teal-600" :
-                                       acc.email.toLowerCase() === "oliveiradropshop@gmail.com" ? "bg-indigo-500" : "bg-slate-500";
-                      
-                      return (
-                        <div
-                          key={acc.email}
-                          className="group flex items-center justify-between p-3 sm:p-2 bg-slate-50 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/10 rounded-xl transition duration-150"
-                        >
-                          <button
-                            onClick={() => handleInitiateSignIn(acc.email, acc.name)}
-                            className="flex-1 flex items-center space-x-2.5 truncate text-left cursor-pointer py-1 pl-1"
-                          >
-                            <div className={`w-7 h-7 rounded-full ${avatarBg} flex items-center justify-center text-white font-extrabold text-[11px] shrink-0`}>
-                              {initial}
-                            </div>
-                            <div className="truncate pr-1">
-                              <span className="block font-black text-slate-900 text-[11px] truncate">{acc.name}</span>
-                              <span className="text-[9px] text-slate-600 font-mono block truncate font-medium">{acc.email}</span>
-                            </div>
-                          </button>
-                          
-                          <div className="flex items-center space-x-1.5 shrink-0 pr-1">
-                            {acc.isAdmin ? (
-                              <span className="text-[8px] bg-teal-100 text-teal-800 font-bold uppercase py-0.5 px-1.5 rounded-full shrink-0">
-                                Admin
-                              </span>
-                            ) : (
-                              <span className="text-[8px] bg-indigo-100 text-indigo-800 font-bold uppercase py-0.5 px-1.5 rounded-full shrink-0">
-                                Usuário
-                              </span>
-                            )}
-                            
-                            <button
-                              onClick={(e) => handleForgetAccount(acc.email, e)}
-                              title="Esquecer conta neste dispositivo"
-                              className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-slate-200/50 rounded-lg transition"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-
-                {/* Account choice C: Add alternative Google e-mail */}
-                <div className="pt-3 border-t border-slate-100 space-y-3">
-                  <span className="block text-[9px] uppercase font-mono font-bold text-slate-400">Ou use uma conta diferente:</span>
-                  
-                  <div className="space-y-2 sm:space-y-1.5">
-                    <input
-                      type="text"
-                      placeholder="Seu Nome Completo"
-                      value={customLoginName}
-                      onChange={(e) => setCustomLoginName(e.target.value)}
-                      className="w-full text-sm sm:text-xs px-4 sm:px-3 py-3 sm:py-2 bg-slate-50/50 border border-slate-200 rounded-xl focus:border-indigo-500 focus:outline-none placeholder-slate-400"
-                    />
-                    <input
-                      type="email"
-                      placeholder="seu.email@gmail.com"
-                      value={customLoginEmail}
-                      onChange={(e) => setCustomLoginEmail(e.target.value)}
-                      className="w-full text-sm sm:text-xs px-4 sm:px-3 py-3 sm:py-2 bg-slate-50/50 border border-slate-200 rounded-xl focus:border-indigo-500 focus:outline-none placeholder-slate-400"
-                    />
-                    
-                    <button
-                      disabled={!customLoginEmail.includes("@")}
-                      onClick={() => handleInitiateSignIn(customLoginEmail.trim().toLowerCase(), customLoginName.trim())}
-                      className="w-full py-3 sm:py-2 bg-white hover:bg-slate-100 border border-slate-400 text-black disabled:opacity-50 disabled:text-slate-500 disabled:border-slate-200 disabled:bg-slate-50 rounded-xl text-xs font-bold transition duration-150 cursor-pointer text-center shadow-xs mt-1"
-                    >
-                      Conectar Nova Conta Google
-                    </button>
-                  </div>
-                </div>
-
-                {/* Google Security Policy Consent Box */}
-                <div className="pt-2 bg-slate-50 rounded-xl p-2.5 border border-slate-200/60 text-[10px] text-slate-500 space-y-1">
-                  <div className="flex items-center space-x-1.5 text-slate-700 font-bold">
-                    <Shield className="w-3.5 h-3.5 text-teal-600 font-extrabold" />
-                    <span>Política de Segurança Google Accounts</span>
-                  </div>
-                  <p className="leading-normal">
-                    Seus dados de saúde e cadastros são criptografados end-to-end localmente. O VittaBP opera sob as diretrizes OAuth 2.0 do Google. Nós nunca coletamos ou armazenamos suas credenciais do Google fora do seu próprio navegador.
-                  </p>
-                </div>
-              </div>
-            ) : authStep === "password" ? (
-              <div className="space-y-4 animate-fadeIn">
-                {/* Account Header info */}
-                <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center justify-between">
-                  <div className="flex items-center space-x-2.5 min-w-0">
-                    <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-extrabold text-xs shrink-0">
-                      {selectedAccount?.name ? selectedAccount.name.charAt(0).toUpperCase() : "G"}
-                    </div>
-                    <div className="min-w-0">
-                      <span className="block font-bold text-slate-800 text-xs truncate">{selectedAccount?.name}</span>
-                      <span className="block text-[10px] text-slate-400 font-mono truncate">{selectedAccount?.email}</span>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={() => setAuthStep("choose")}
-                    className="text-[10px] font-bold text-black hover:text-black border border-slate-400 hover:border-slate-500 hover:bg-slate-50 px-2.5 py-1 bg-white rounded-lg transition duration-150 cursor-pointer shadow-xs"
-                  >
-                    Alternar
-                  </button>
-                </div>
-
-                <div className="space-y-3.5">
-                  <div className="space-y-1">
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide">
-                      Senha da Conta Google:
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
-                        <Lock className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
-                      </div>
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="••••••••••••"
-                        value={googlePassword}
-                        onChange={(e) => {
-                          setGooglePassword(e.target.value);
-                          if (passwordError) setPasswordError("");
-                        }}
-                        className="w-full text-sm sm:text-xs pl-10 pr-10 py-3 sm:py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:outline-none rounded-xl font-mono text-slate-800"
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") handleVerifyPassword();
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600 px-1"
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4 sm:w-3.5 sm:h-3.5" /> : <Eye className="w-4 h-4 sm:w-3.5 sm:h-3.5" />}
-                      </button>
-                    </div>
-                    {passwordError && (
-                      <p className="text-[10px] sm:text-[11px] font-bold text-red-600 mt-1">{passwordError}</p>
-                    )}
-                  </div>
-
-                  {/* Standard Sign In click */}
-                  <button
-                    onClick={handleVerifyPassword}
-                    className="w-full py-3 sm:py-2.5 bg-slate-900 hover:bg-black text-white font-bold text-sm sm:text-xs rounded-xl flex items-center justify-center space-x-2 shadow-lg active:scale-98 transition duration-150 cursor-pointer"
-                  >
-                    <LogIn className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
-                    <span>Conectar com Senha</span>
-                  </button>
-
-                  {/* HIGHLY PROMINENT MOBILE FINGERPRINT / DIGITAL BIOMETRIC SECTION */}
-                  <div className="relative flex py-1 items-center">
-                    <div className="flex-grow border-t border-slate-200"></div>
-                    <span className="flex-shrink mx-3 text-[9px] uppercase font-bold text-slate-400 tracking-wider">OU MODO BIOMÉTRICO (MOBILE)</span>
-                    <div className="flex-grow border-t border-slate-200"></div>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setAuthStep("biometric");
-                      // Automatically trigger scan initialization
-                      setBiometricScanning(false);
-                      setBiometricProgress(0);
-                      setBiometricSuccess(false);
-                    }}
-                    className="w-full py-3 bg-gradient-to-r from-teal-500 via-teal-600 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-black text-xs sm:text-sm rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-teal-500/15 active:scale-98 transition-all duration-200 text-center cursor-pointer"
-                  >
-                    <Fingerprint className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse shrink-0" />
-                    <span>Acesso Biométrico Seguro</span>
-                  </button>
-                </div>
-
-                {/* Google Terms disclosure (politica de seguranca do google) */}
-                <div className="text-[9px] text-slate-400 font-medium leading-relaxed bg-slate-50 border border-slate-100 p-2.5 rounded-lg">
-                  Ao continuar, o Google compartilhará seu nome e endereço de e-mail com o VittaBP. Seus dados de saúde permanecem privados sob as Normas Internacionais de Proteção de Dados (LGPD e HIPAA). O VittaBP nunca publica dados em sua conta Google Drive ou Google Cloud sem sua anuência prévia.
-                </div>
-              </div>
-            ) : (
-              /* BIOMETRIC STEP */
-              <div className="space-y-5 py-2 animate-fadeIn text-center">
-                <div className="mx-auto max-w-[200px] p-4 bg-slate-50 border border-slate-200/60 rounded-2xl shadow-inner relative overflow-hidden">
-                  
-                  {/* Subtle mobile mockup border feel */}
-                  <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-1 bg-slate-200 rounded-full" />
-                  
-                  {/* Graphic scanning circle area */}
-                  <div className="relative w-28 h-28 mx-auto mt-2 bg-white rounded-full flex items-center justify-center border-4 border-slate-100 shadow-md">
-                    
-                    {/* Pulsing indicator ring */}
-                    {biometricScanning && (
-                      <div className="absolute inset-0 border-4 border-teal-500 rounded-full animate-ping opacity-75"></div>
-                    )}
-                    
-                    {/* Progress feedback circle track */}
-                    <svg className="absolute inset-0 w-full h-full transform -rotate-90">
-                      <circle
-                        cx="56"
-                        cy="56"
-                        r="50"
-                        stroke="#e2e8f0"
-                        strokeWidth="4"
-                        fill="transparent"
-                      />
-                      <circle
-                        cx="56"
-                        cy="56"
-                        r="50"
-                        stroke={biometricSuccess ? "#0d9488" : "#2563eb"}
-                        strokeWidth="4"
-                        fill="transparent"
-                        strokeDasharray={2 * Math.PI * 50}
-                        strokeDashoffset={2 * Math.PI * 50 * (1 - biometricProgress / 100)}
-                        className="transition-all duration-100 ease-out"
-                      />
-                    </svg>
-
-                    {/* Sensor button trigger */}
-                    <button
-                      onClick={handleStartBiometricScan}
-                      disabled={biometricScanning || biometricSuccess}
-                      className={`relative w-20 h-20 rounded-full flex flex-col items-center justify-center transition-all duration-300 outline-none select-none z-10 ${
-                        biometricSuccess 
-                          ? "bg-teal-500 text-white" 
-                          : biometricScanning 
-                          ? "bg-slate-100 text-indigo-600 scale-95" 
-                          : "bg-slate-50 hover:bg-slate-100 text-slate-600 cursor-pointer active:scale-95 shadow-inner"
-                      }`}
-                    >
-                      <Fingerprint className={`w-10 h-10 ${biometricScanning ? "animate-pulse" : ""}`} />
-                    </button>
-                    
-                    {/* Laser line effect moving up and down */}
-                    {biometricScanning && (
-                      <div className="absolute left-4 right-4 h-0.5 bg-teal-400 shadow-teal-500/80 shadow-md animate-bounce top-1/2"></div>
-                    )}
-                  </div>
-
-                  {/* Progress numeric value */}
-                  <div className="mt-3 text-xs font-mono font-bold text-slate-700">
-                    {biometricScanning ? `${biometricProgress}%` : biometricSuccess ? "100%" : "TouchID Pronto"}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <h4 className="font-extrabold text-slate-800 text-sm">
-                    {biometricSuccess 
-                      ? "Acesso Confirmado!" 
-                      : biometricScanning 
-                      ? "Escaneando Impressão Digital..." 
-                      : "Verificação de Privacidade"}
-                  </h4>
-                  <p className="text-xs text-slate-500 max-w-xs mx-auto px-4 leading-normal">
-                    {biometricSuccess 
-                      ? "Leitura validada no smartphone. Iniciando sessão..." 
-                      : biometricScanning 
-                      ? "Mantenha o dedo firme no sensor de impressão digital do seu smartphone." 
-                      : "Pressione o sensor biométrico acima ou clique no botão para ler a digital cadastrada em seu aparelho celular."}
-                  </p>
-                </div>
-
-                {/* Simulated native tactile instructions */}
-                {!biometricScanning && !biometricSuccess && (
-                  <div className="pt-2 flex justify-center gap-2">
-                    <button
-                      onClick={handleStartBiometricScan}
-                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] rounded-lg transition shrink-0 cursor-pointer"
-                    >
-                      Iniciar Leitor Digital
-                    </button>
-                    <button
-                      onClick={() => setAuthStep("password")}
-                      className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium text-[11px] rounded-lg transition shrink-0 cursor-pointer"
-                    >
-                      Voltar para Senha
-                    </button>
-                  </div>
-                )}
-                
-                {/* Visual Lock Policy check */}
-                <div className="pt-2 text-[9px] text-slate-400 flex items-center justify-center space-x-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
-                  <span>Proteção por Chave Biométrica Integrada (Android / iOS)</span>
-                </div>
-              </div>
-            )}
-            </div>
-          </div>
-        )}
     </div>
+    </div>
+    </div>
+    </>
   );
 }

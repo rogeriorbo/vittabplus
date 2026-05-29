@@ -19,17 +19,30 @@ const MYSQL_CONFIG_FILE = path.join(process.cwd(), "mysql_config.json");
 async function getSavedMysqlConfig() {
   try {
     const data = await fs.readFile(MYSQL_CONFIG_FILE, "utf-8");
-    return JSON.parse(data);
-  } catch (error) {
+    const parsed = JSON.parse(data);
+    if (parsed.isConfigured) return parsed;
+  } catch (error) {}
+
+  // Fallback to environment variables
+  if (process.env.MYSQL_HOST) {
     return {
-      host: "",
-      port: 3306,
-      database: "",
-      user: "",
-      password: "",
-      isConfigured: false
+      host: process.env.MYSQL_HOST,
+      port: Number(process.env.MYSQL_PORT) || 3306,
+      database: process.env.MYSQL_DATABASE,
+      user: process.env.MYSQL_USER,
+      password: process.env.MYSQL_PASSWORD,
+      isConfigured: true
     };
   }
+  
+  return {
+    host: "",
+    port: 3306,
+    database: "",
+    user: "",
+    password: "",
+    isConfigured: false
+  };
 }
 
 async function saveSavedMysqlConfig(config: any) {
@@ -57,6 +70,21 @@ function getGeminiClient(): GoogleGenAI {
 }
 
 // Ensure remote MySQL has proper tables
+const USERS_FILE = path.join(process.cwd(), "users_db.json");
+
+async function loadLocalUsers() {
+  try {
+    const data = await fs.readFile(USERS_FILE, "utf-8");
+    return JSON.parse(data);
+  } catch (e) {
+    return [];
+  }
+}
+
+async function saveLocalUsers(users: any[]) {
+  await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
+}
+
 async function ensureTables(connection: mysql.Connection) {
   await connection.query(`
     CREATE TABLE IF NOT EXISTS bp_readings (
@@ -83,12 +111,175 @@ async function ensureTables(connection: mysql.Connection) {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `);
 
+  await connection.query(`
+    CREATE TABLE IF NOT EXISTS app_users (
+      id VARCHAR(100) PRIMARY KEY,
+      name VARCHAR(100) NOT NULL,
+      surname VARCHAR(100) NOT NULL,
+      birth_date VARCHAR(50) NOT NULL,
+      email VARCHAR(150) UNIQUE NOT NULL,
+      password VARCHAR(150) NOT NULL,
+      height INT,
+      weight REAL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `);
+
   // Ensure to add user_id column if tables previously existed without it (for migration)
   try { await connection.query('ALTER TABLE bp_readings ADD COLUMN user_id VARCHAR(100) NOT NULL DEFAULT "legacy"'); } catch (e) {}
   try { await connection.query('ALTER TABLE glucose_readings ADD COLUMN user_id VARCHAR(100) NOT NULL DEFAULT "legacy"'); } catch (e) {}
 }
 
 // API Routes
+
+// User Register API Endpoint (supports dual modes: VPS database or elegant local JSON database caching)
+app.post("/api/auth/register", async (req, res) => {
+  const { id, name, surname, birthDate, email, password, height, weight } = req.body;
+  
+  if (!email || !password || !name) {
+    return res.status(400).json({ success: false, message: "E-mail, senha e nome são obrigatórios para realizar o cadastro." });
+  }
+
+  try {
+    const config = await getSavedMysqlConfig();
+    let registeredUser = {
+      id: id || `u-${Date.now()}`,
+      name,
+      surname: surname || "",
+      birthDate: birthDate || "",
+      email: email.toLowerCase().trim(),
+      password,
+      height: height ? Number(height) : null,
+      weight: weight ? Number(weight) : null
+    };
+
+    // Save to local json buffer first as a strong local fallback
+    const localUsers = await loadLocalUsers();
+    const existsLocally = localUsers.find((u: any) => u.email === registeredUser.email);
+    if (existsLocally) {
+      return res.status(400).json({ success: false, message: "Este endereço de e-mail já está cadastrado no sistema." });
+    }
+    localUsers.push(registeredUser);
+    await saveLocalUsers(localUsers);
+
+    // If Remote VPS MySQL is active, sync registering configuration directly into it
+    if (config && config.isConfigured) {
+      try {
+        const connection = await mysql.createConnection({
+          host: config.host,
+          port: Number(config.port) || 3306,
+          user: config.user,
+          password: config.password || "",
+          database: config.database,
+          connectTimeout: 5000
+        });
+
+        await ensureTables(connection);
+        
+        await connection.query(`
+          INSERT INTO app_users (id, name, surname, birth_date, email, password, height, weight)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          ON DUPLICATE KEY UPDATE
+            name = VALUES(name),
+            surname = VALUES(surname),
+            birth_date = VALUES(birth_date),
+            password = VALUES(password),
+            height = VALUES(height),
+            weight = VALUES(weight)
+        `, [registeredUser.id, registeredUser.name, registeredUser.surname, registeredUser.birthDate, registeredUser.email, registeredUser.password, registeredUser.height, registeredUser.weight]);
+        
+        await connection.end();
+      } catch (dbErr: any) {
+        console.error("User remote sync failed (ignoring since saved locally):", dbErr);
+      }
+    }
+
+    return res.json({ success: true, user: registeredUser });
+  } catch (error: any) {
+    console.error("Register endpoint error:", error);
+    return res.status(500).json({ success: false, message: "Falha interna ao criar conta no servidor." });
+  }
+});
+
+// User Login API Endpoint (loads from local JSON db file or queries remote MySQL database dynamically)
+app.post("/api/auth/login", async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ success: false, message: "E-mail e senha são necessários para realizar o acesso." });
+  }
+
+  try {
+    const targetEmail = email.toLowerCase().trim();
+    const config = await getSavedMysqlConfig();
+
+    // 1. Check VPS if active to get the latest clinical values
+    if (config && config.isConfigured) {
+      try {
+        const connection = await mysql.createConnection({
+          host: config.host,
+          port: Number(config.port) || 3306,
+          user: config.user,
+          password: config.password || "",
+          database: config.database,
+          connectTimeout: 5000
+        });
+
+        await ensureTables(connection);
+        
+        const [rows] = await connection.query("SELECT * FROM app_users WHERE email = ? LIMIT 1", [targetEmail]);
+        const dbUsers = rows as any[];
+        await connection.end();
+
+        if (dbUsers.length > 0) {
+          const u = dbUsers[0];
+          if (u.password === password) {
+            const mappedUser = {
+              id: u.id,
+              name: u.name,
+              surname: u.surname,
+              birthDate: u.birth_date,
+              email: u.email,
+              password: u.password,
+              height: u.height,
+              weight: u.weight
+            };
+
+            // Sync back to local json storage as backup cache
+            const localUsers = await loadLocalUsers();
+            const index = localUsers.findIndex((lu: any) => lu.email === targetEmail);
+            if (index >= 0) {
+              localUsers[index] = mappedUser;
+            } else {
+              localUsers.push(mappedUser);
+            }
+            await saveLocalUsers(localUsers);
+
+            return res.json({ success: true, user: mappedUser });
+          } else {
+            return res.status(401).json({ success: false, message: "Senha incorreta informada." });
+          }
+        }
+      } catch (dbErr: any) {
+        console.error("User remote validation failed, falling back to local file context:", dbErr);
+      }
+    }
+
+    // 2. Check local database file backup
+    const localUsers = await loadLocalUsers();
+    const localMatch = localUsers.find((u: any) => u.email === targetEmail);
+    if (localMatch) {
+      if (localMatch.password === password) {
+        return res.json({ success: true, user: localMatch });
+      } else {
+        return res.status(401).json({ success: false, message: "Senha incorreta informada." });
+      }
+    }
+
+    return res.status(404).json({ success: false, message: "Nenhum usuário correspondente encontrado." });
+  } catch (error: any) {
+    console.error("Login endpoint error:", error);
+    return res.status(500).json({ success: false, message: "Erro no processamento interno de login." });
+  }
+});
 
 // GET remote VPS configuration so that all machines share and use the same MySQL connection
 app.get("/api/mysql/config", async (req, res) => {

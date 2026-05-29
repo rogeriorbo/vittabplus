@@ -18,6 +18,16 @@ export default function ProfileView({ profile, onSave }: ProfileViewProps) {
   const [targetWeight, setTargetWeight] = useState<number | "">(profile.targetWeight ?? "");
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  // Sync state cleanly if parent profile prop updates (e.g., when a user logs in or registers)
+  React.useEffect(() => {
+    setName(profile.name || "");
+    setBirthDate(profile.birthDate || "");
+    setAdditionalInfo(profile.additionalInfo || "");
+    setHeight(profile.height || 0);
+    setWeight(profile.weight || 0);
+    setTargetWeight(profile.targetWeight ?? "");
+  }, [profile]);
+
   // Derive age
   const calculateAge = (dateStr: string): number => {
     if (!dateStr || !dateStr.includes('-')) return 0;

@@ -9,30 +9,30 @@ export default defineConfig(() => {
     plugins: [
       react(), 
       tailwindcss(),
-      VitePWA({
-        registerType: 'autoUpdate',
-        manifest: {
-          name: 'VittaBP - Diário de Saúde',
-          short_name: 'VittaBP',
-          description: 'Monitoramento de pressão arterial, glicose e exercícios.',
-          theme_color: '#4f46e5',
-          background_color: '#ffffff',
-          display: 'standalone',
-          orientation: 'portrait',
-          icons: [
-            {
-              src: 'https://cdn-icons-png.flaticon.com/512/3063/3063822.png',
-              sizes: '192x192',
-              type: 'image/png'
-            },
-            {
-              src: 'https://cdn-icons-png.flaticon.com/512/3063/3063822.png',
-              sizes: '512x512',
-              type: 'image/png'
-            }
-          ]
-        }
-      })
+      // VitePWA({
+      //   registerType: 'autoUpdate',
+      //   manifest: {
+      //     name: 'VittaBP - Diário de Saúde',
+      //     short_name: 'VittaBP',
+      //     description: 'Monitoramento de pressão arterial, glicose e exercícios.',
+      //     theme_color: '#4f46e5',
+      //     background_color: '#ffffff',
+      //     display: 'standalone',
+      //     orientation: 'portrait',
+      //     icons: [
+      //       {
+      //         src: 'https://cdn-icons-png.flaticon.com/512/3063/3063822.png',
+      //         sizes: '192x192',
+      //         type: 'image/png'
+      //       },
+      //       {
+      //         src: 'https://cdn-icons-png.flaticon.com/512/3063/3063822.png',
+      //         sizes: '512x512',
+      //         type: 'image/png'
+      //       }
+      //     ]
+      //   }
+      // })
     ],
     build: {
       outDir: 'dist',
