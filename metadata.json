@@ -1,5 +1,5 @@
 {
-  "name": "VittaBP Diário Clínico",
+  "name": "VittaBPlus Diário Clínico",
   "description": "Diário clínico inteligente de pressão arterial e glicose com alertas de hábitos, insights com IA Gemini, exportação de dados e sincronização com banco de dados MySQL privado.",
   "requestFramePermissions": ["bluetooth", "geolocation"],
   "majorCapabilities": [

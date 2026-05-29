@@ -90,12 +90,12 @@ export default function LandingPage({ onLogin, onRegister, onDemoSignIn, onShowP
       <header className="bg-white border-b border-slate-100 py-4.5 px-4 sm:px-6 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
-            <div className="w-9 h-9 bg-gradient-to-tr from-teal-500 to-emerald-400 rounded-xl flex items-center justify-center p-2 text-white shadow-md">
-              <Heart className="w-5 h-5 animate-pulse" />
+            <div className="w-8 h-8 md:w-9 md:h-9 bg-gradient-to-tr from-teal-600 to-emerald-500 rounded-xl flex items-center justify-center p-2 text-white shadow-sm">
+              <Heart className="w-4.5 h-4.5 md:w-5 md:h-5 animate-pulse" />
             </div>
             <div>
-              <span className="font-extrabold tracking-tight text-slate-950 text-base block leading-none">VittaBP</span>
-              <span className="text-[9px] uppercase tracking-wider font-extrabold text-teal-600 block mt-0.5">Prontuário Preventivo</span>
+              <span className="font-extrabold tracking-tight text-slate-950 text-base md:text-lg block leading-none">VittaBPlus</span>
+              <span className="text-[8px] md:text-[9px] uppercase tracking-wider font-extrabold text-teal-600 block mt-0.5">Prontuário Preventivo</span>
             </div>
           </div>
           
@@ -108,53 +108,61 @@ export default function LandingPage({ onLogin, onRegister, onDemoSignIn, onShowP
       <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 md:py-14 grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-14 items-center">
         
         {/* Left Hand: Product Pitch & Presentation */}
-        <div className="lg:col-span-7 space-y-6 md:space-y-8">
-          <div className="space-y-4">
-            <h1 className="text-3xl md:text-4.5xl font-black text-slate-900 leading-[1.1] tracking-tight">
-              Seu diário clínico e <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-650 to-indigo-650">prontuário preventivo</span> em um só lugar.
+        <div className="lg:col-span-7 space-y-6 md:space-y-8 flex flex-col items-center lg:items-start text-center lg:text-left">
+          <div className="space-y-2 md:space-y-3">
+            <h1 className="text-3xl md:text-5xl font-black text-slate-900 leading-[1.1] tracking-tight">
+              <span className="text-teal-600">VittaBPlus:</span> Seu diário clínico e <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-indigo-600">prontuário preventivo</span> inteligente.
             </h1>
             
-            <p className="text-sm md:text-base text-slate-500 leading-relaxed max-w-xl">
-              Monitore de forma ágil e interativa sua pressão arterial, índices glicêmicos corporais e massa física com laudos instantâneos gerados localmente ou enriquecidos com Inteligência Artificial do Google Gemini.
+            <p className="text-sm md:text-base text-slate-500 leading-relaxed max-w-xl mx-auto lg:mx-0">
+              Monitore de forma ágil e interativa sinais vitais como pressão arterial e glicemia, com laudos preventivos enriquecidos com IA do Google Gemini.
             </p>
           </div>
 
           {/* Core App Feature Blocks */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="p-4 bg-white rounded-2xl border border-slate-100/80 shadow-sm flex items-start space-x-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 w-full">
+            <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-start space-x-3.5 text-left">
               <div className="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600 shrink-0">
                 <Activity className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-bold text-xs text-slate-800">Dois Registros Vitais</h4>
-                <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Pressão Arterial (sistólica/diastólica) e níveis de glicemia integrados.</p>
+                <h4 className="font-bold text-xs text-slate-800 tracking-tight">Monitoramento Vital</h4>
+                <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Pressão Arterial e Glicemia integrados em uma linha do tempo intuitiva.</p>
               </div>
             </div>
 
-            <div className="p-4 bg-white rounded-2xl border border-slate-100/80 shadow-sm flex items-start space-x-3.5">
+            <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-start space-x-3.5 text-left">
               <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-bold text-xs text-slate-800">Laudos Inteligentes IA</h4>
-                <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Avaliações preventivas automatizadas com base nas diretrizes clínicas da OMS.</p>
+                <h4 className="font-bold text-xs text-slate-800 tracking-tight">Laudos com IA</h4>
+                <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Avaliações automatizadas baseadas nas diretrizes clínicas da OMS.</p>
               </div>
             </div>
 
-            <div className="p-4 bg-white rounded-2xl border border-slate-100/80 shadow-sm flex items-start space-x-3.5">
+            <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-start space-x-3.5 text-left">
               <div className="w-9 h-9 rounded-xl bg-rose-50 flex items-center justify-center text-rose-500 shrink-0">
                 <FileText className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-bold text-xs text-slate-800">PDFs Prontos para Consultas</h4>
-                <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Exporte todo o seu prontuário clínico e histórico com apenas um clique.</p>
+                <h4 className="font-bold text-xs text-slate-800 tracking-tight">Relatórios PDF</h4>
+                <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Exporte seu prontuário clínico completo para apresentar em consultas médicas.</p>
               </div>
             </div>
 
-
+            <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-start space-x-3.5 text-left">
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500 shrink-0">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-bold text-xs text-slate-800 tracking-tight">Privacidade Total</h4>
+                <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Seus dados são armazenados localmente e protegidos conforme a LGPD.</p>
+              </div>
+            </div>
           </div>
           
-          <div className="border-t border-slate-200/60 pt-6">
+          <div className="border-t border-slate-200/60 pt-5 w-full flex justify-center lg:justify-start">
             <div className="flex items-center space-x-5 text-slate-400 text-xs">
               <div className="flex items-center space-x-1.5">
                 <ShieldCheck className="w-4.5 h-4.5 text-teal-500" />
@@ -170,15 +178,14 @@ export default function LandingPage({ onLogin, onRegister, onDemoSignIn, onShowP
         <div className="lg:col-span-5">
           <div className="bg-white rounded-2.5xl border border-slate-200/80 shadow-xl p-6 md:p-8 space-y-6">
             
-            {/* Form Title & Picker Tabs */}
-            <div className="space-y-1.5 text-center">
-              <h2 className="text-xl font-extrabold text-slate-900">
-                {mode === 'login' ? 'Bem-vindo ao VittaBP' : 'Comece seu Teste Grátis'}
+            <div className="space-y-1 text-center">
+              <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+                {mode === 'login' ? 'Bem-vindo ao VittaBPlus' : 'Sua Nova Ficha Clínica'}
               </h2>
               <p className="text-xs text-slate-400">
                 {mode === 'login' 
-                  ? 'Acesse com suas credenciais ou crie um cadastro clínico' 
-                  : 'Preencha seus parâmetros iniciais de saúde abaixo'
+                  ? 'Acesse seu prontuário ou crie um novo cadastro' 
+                  : 'Preencha seus parâmetros básicos para começar'
                 }
               </p>
             </div>
@@ -417,7 +424,7 @@ export default function LandingPage({ onLogin, onRegister, onDemoSignIn, onShowP
       <footer className="bg-white border-t border-slate-100 py-6 px-4">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between text-[11px] text-slate-400 space-y-3.5 md:space-y-0">
           <div>
-            <span>&copy; {new Date().getFullYear()} VittaBP Diário Preventivo - <a href="http://www.deioinfo.com.br" target="_blank" rel="noopener noreferrer" className="font-bold border-b border-dotted border-slate-300 hover:text-teal-600 hover:border-teal-400 transition-colors">Déio Informática</a>. Todos os direitos reservados.</span>
+            <span>&copy; {new Date().getFullYear()} VittaBPlus Diário Preventivo - <a href="http://www.deioinfo.com.br" target="_blank" rel="noopener noreferrer" className="font-bold border-b border-dotted border-slate-300 hover:text-teal-600 hover:border-teal-400 transition-colors uppercase pr-1">Déio Informática</a>.</span>
           </div>
           <div className="flex space-x-4">
             <span 

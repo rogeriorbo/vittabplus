@@ -16,7 +16,7 @@ export default function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
               <Shield className="w-5 h-5" />
             </div>
             <div>
-              <span className="font-extrabold tracking-tight text-slate-950 text-base block leading-none">VittaBP</span>
+              <span className="font-extrabold tracking-tight text-slate-950 text-base block leading-none">VittaBPlus</span>
               <span className="text-[9px] uppercase tracking-wider font-extrabold text-teal-600 block mt-0.5">Políticas de Privacidade</span>
             </div>
           </div>
@@ -155,7 +155,7 @@ export default function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
       <footer className="bg-white border-t border-slate-100 py-10 px-4 mt-auto">
         <div className="max-w-4xl mx-auto text-center space-y-2">
           <p className="text-[11px] text-slate-400 font-bold">
-            &copy; {new Date().getFullYear()} VittaBP Diário Preventivo - Déio Informática.
+            <span>&copy; {new Date().getFullYear()} VittaBPlus Diário Preventivo - Déio Informática.</span>
           </p>
           <p className="text-[10px] text-slate-350">
             Dúvidas sobre sua segurança? Entre em contato com nosso suporte especializado.

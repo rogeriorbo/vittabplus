@@ -825,9 +825,7 @@ export default function App() {
     <div className={`min-h-screen bg-slate-50/50 ${isFooterFixed ? 'pb-24 md:pb-16' : 'pb-6'} font-sans`}>
       <AuthModal isOpen={isAuthModalOpen} onLogin={handleLogin} onRegister={handleRegister} />
       
-      {/* Main Container */}
-      <div className={`max-w-7xl mx-auto px-2 sm:px-4 mt-4 md:mt-8 space-y-6 md:space-y-8 ${isAuthModalOpen ? 'opacity-20 pointer-events-none' : ''}`}>
-          {/* Dynamic Simulated Alarm banner overlay */}
+      {/* Dynamic Simulated Alarm banner overlay */}
       {activeNotification && (
         <div id="delete-confirmation-modal" className="fixed bottom-36 md:bottom-20 right-4 left-4 md:left-auto md:right-6 z-60 max-w-sm bg-slate-900 text-white rounded-2xl shadow-2xl p-4 border border-rose-500/20 animate-shake">
           <div className="flex items-start space-x-3">
@@ -835,7 +833,7 @@ export default function App() {
               <Bell className="w-5 h-5 animate-bounce" />
             </div>
             <div className="flex-1">
-              <span className="text-[10px] uppercase font-bold text-rose-400 tracking-wider">Hábito Clínico VittaBP</span>
+              <span className="text-[10px] uppercase font-bold text-rose-400 tracking-wider">Hábito Clínico VittaBPlus</span>
               <h4 className="text-sm font-semibold text-slate-100">{activeNotification.label}</h4>
               <p className="text-xs text-slate-300 mt-0.5">Está na hora! Crie o hábito de preencher seu prontuário clínico preventivo.</p>
               
@@ -880,14 +878,14 @@ export default function App() {
             {/* Logo directly (removed wrapper/card background, size increased) */}
             <img 
               src={vittabpLogo} 
-              alt="VittaBP Logo" 
+              alt="VittaBPlus Logo" 
               className="w-11 h-11 md:w-14 md:h-14 object-contain shrink-0 transition-all duration-300 group-hover:scale-105" 
               referrerPolicy="no-referrer" 
             />
             
             <div className="min-w-0">
               <div className="flex items-center space-x-1 sm:space-x-2">
-                <h1 className="text-base md:text-xl font-black text-slate-800 tracking-tight leading-none group-hover:text-teal-600 transition-colors">VittaBP</h1>
+                <h1 className="text-base md:text-xl font-black text-slate-800 tracking-tight leading-none group-hover:text-teal-600 transition-colors">VittaBPlus</h1>
                 <span className="text-[8px] md:text-[9px] uppercase font-black tracking-widest px-1.5 py-0.5 bg-teal-50 text-teal-700 rounded-md">Diário</span>
               </div>
               <p className="text-[10px] md:text-xs text-slate-400 truncate mt-0.5 hidden xs:block">
@@ -917,7 +915,7 @@ export default function App() {
                 >
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white font-extrabold shadow-sm ${
                     currentUser.email === "deiorbo@gmail.com" 
-                      ? "bg-gradient-to-tr from-teal-650 to-teal-500" 
+                      ? "bg-gradient-to-tr from-teal-600 to-teal-500" 
                       : "bg-gradient-to-tr from-indigo-500 to-indigo-400"
                   }`}>
                     {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : "U"}
@@ -959,7 +957,7 @@ export default function App() {
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-black shadow-md ${
                           currentUser?.email === "deiorbo@gmail.com" 
                             ? "bg-gradient-to-tr from-teal-600 to-teal-400" 
-                            : "bg-gradient-to-tr from-indigo-505 to-indigo-400"
+                            : "bg-gradient-to-tr from-indigo-500 to-indigo-400"
                         }`}>
                           {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : "U"}
                         </div>
@@ -990,9 +988,9 @@ export default function App() {
           </div>
         </div>
       </header>
-      
+
       {/* Main Container */}
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 mt-4 md:mt-8 space-y-6 md:space-y-8">
+      <div className={`max-w-7xl mx-auto px-2 sm:px-4 mt-4 md:mt-8 space-y-6 md:space-y-8 ${isAuthModalOpen ? 'opacity-20 pointer-events-none' : ''}`}>
         
         {/* Row 2: General Stats & Graphics visualization */}
         <div className={activeMobileTab === 'dashboard' ? 'block animate-fadeIn' : 'hidden'}>
@@ -1223,7 +1221,7 @@ export default function App() {
                         </div>
                         <div className="min-w-0">
                           <span className="font-bold text-slate-700 block text-xs md:text-sm">Configuração MySQL Premium Oculta</span>
-                          <p className="text-[10px] sm:text-[11px] text-slate-450 text-slate-400 leading-normal">
+                          <p className="text-[10px] sm:text-[11px] text-slate-400 leading-normal">
                             Este recurso foi programaticamente privado pelo administrador do sistema para fins de segurança e privacidade dos dados.
                           </p>
                         </div>
@@ -1370,8 +1368,8 @@ export default function App() {
               {/* Branding Footer */}
               <div className="p-6 bg-slate-50/50 border-t border-slate-100 text-center space-y-2">
                  <div className="flex items-center justify-center gap-2 mb-1">
-                    <img src={vittabpLogo} alt="VittaBP" className="w-5 h-5 opacity-40 grayscale" />
-                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">VittaBP v2.5</span>
+                    <img src={vittabpLogo} alt="VittaBPlus" className="w-5 h-5 opacity-40 grayscale" />
+                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">VittaBPlus v3.0</span>
                  </div>
                  <p className="text-[9px] text-slate-300 max-w-xs mx-auto leading-relaxed">Sua saúde monitorada com precisão clínica e tecnologia de ponta sincronizada.</p>
                  <div className="flex justify-center space-x-3 text-[10px] text-slate-400 font-bold uppercase tracking-tighter pt-2">
@@ -1550,9 +1548,9 @@ export default function App() {
         <div className="bg-slate-100 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 border border-slate-200 text-xs text-slate-500 leading-normal mb-8">
           <div className="flex items-start sm:items-center space-x-2">
             <ShieldCheck className="w-5 h-5 text-teal-600 shrink-0 mt-0.5 sm:mt-0" />
-            <span>VittaBP é focado no acompanhamento de hábitos e controle do diário. Não altere automedicações sem avaliação profissional de seu médico corporativo ou clínico.</span>
+            <span>VittaBPlus é focado no acompanhamento de hábitos e controle do diário. Não altere automedicações sem avaliação profissional de seu médico corporativo ou clínico.</span>
           </div>
-          <span className="text-[10px] text-slate-400 shrink-0">VittaBP v2.5 Prontuário</span>
+          <span className="text-[10px] text-slate-400 shrink-0">VittaBPlus v3.0 Prontuário</span>
         </div>
         
       {/* Dynamic Tabbed Bottom Navigation Bar (Fixed or static based on user setting) */}
@@ -1781,7 +1779,6 @@ export default function App() {
           </div>
         </div></>
       )}
-    </div>
     </div>
     </div>
     </>

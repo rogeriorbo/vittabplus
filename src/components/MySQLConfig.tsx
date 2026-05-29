@@ -207,7 +207,7 @@ export default function MySQLConfig({
           <div className="bg-teal-50/50 rounded-xl p-3 border border-teal-100/60 flex items-start space-x-2">
             <Server className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
             <div className="text-[11px] text-teal-800 leading-normal">
-              Insira os dados do seu banco MySQL criado no <strong>aaPanel</strong> da sua VPS. O VittaBP criará de forma 100% autônoma duas tabelas otimizadas sem que você precise digitar código SQL.
+              Insira os dados do seu banco MySQL criado no <strong>aaPanel</strong> da sua VPS. O VittaBPlus criará de forma 100% autônoma duas tabelas otimizadas sem que você precise digitar código SQL.
             </div>
           </div>
 
