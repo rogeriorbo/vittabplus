@@ -14,7 +14,8 @@ import {
   ArrowRight,
   Eye,
   EyeOff,
-  UserCheck
+  UserCheck,
+  MessageCircle
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -22,10 +23,13 @@ interface LandingPageProps {
   onRegister: (user: AppUser) => Promise<void> | void;
   onAdminSignIn: () => void;
   onDemoSignIn: () => void;
+  onShowPrivacy: () => void;
+  onShowTerms: () => void;
+  onShowWHO: () => void;
   authLoading?: boolean;
 }
 
-export default function LandingPage({ onLogin, onRegister, onAdminSignIn, onDemoSignIn, authLoading = false }: LandingPageProps) {
+export default function LandingPage({ onLogin, onRegister, onAdminSignIn, onDemoSignIn, onShowPrivacy, onShowTerms, onShowWHO, authLoading = false }: LandingPageProps) {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [showPassword, setShowPassword] = useState(false);
 
@@ -404,6 +408,16 @@ export default function LandingPage({ onLogin, onRegister, onAdminSignIn, onDemo
             >
               Usar Demonstração do Diário (Bypass)
             </button>
+
+            <a 
+              href="https://wa.me/5521979776578" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl text-xs transition duration-150 flex items-center justify-center space-x-2 shadow-sm"
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span>Suporte via WhatsApp</span>
+            </a>
           </div>
         </div>
       </main>
@@ -412,14 +426,29 @@ export default function LandingPage({ onLogin, onRegister, onAdminSignIn, onDemo
       <footer className="bg-white border-t border-slate-100 py-6 px-4">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between text-[11px] text-slate-400 space-y-3.5 md:space-y-0">
           <div>
-            <span>&copy; {new Date().getFullYear()} VittaBP Diário Preventivo. Todos os direitos reservados.</span>
+            <span>&copy; {new Date().getFullYear()} VittaBP Diário Preventivo - <a href="http://www.deioinfo.com.br" target="_blank" rel="noopener noreferrer" className="font-bold border-b border-dotted border-slate-300 hover:text-teal-600 hover:border-teal-400 transition-colors">Déio Informática</a>. Todos os direitos reservados.</span>
           </div>
           <div className="flex space-x-4">
-            <span className="hover:text-slate-600 transition cursor-pointer">Privacidade</span>
+            <span 
+              onClick={onShowPrivacy}
+              className="hover:text-slate-600 transition cursor-pointer"
+            >
+              Privacidade
+            </span>
             <span>•</span>
-            <span className="hover:text-slate-600 transition cursor-pointer">Termos de Uso</span>
+            <span 
+              onClick={onShowTerms}
+              className="hover:text-slate-600 transition cursor-pointer"
+            >
+              Termos de Uso
+            </span>
             <span>•</span>
-            <span className="hover:text-slate-600 transition cursor-pointer">Diretrizes da OMS</span>
+            <span 
+              onClick={onShowWHO}
+              className="hover:text-slate-600 transition cursor-pointer"
+            >
+              Diretrizes da OMS
+            </span>
           </div>
         </div>
       </footer>

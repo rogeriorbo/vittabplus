@@ -56,6 +56,9 @@ import MobileHub from "./components/MobileHub";
 import ProfileView from "./components/ProfileView";
 import ExportPDFModal from "./components/ExportPDFModal";
 import LandingPage from "./components/LandingPage";
+import PrivacyPolicy from "./components/PrivacyPolicy";
+import TermsOfUse from "./components/TermsOfUse";
+import WHOGuidelines from "./components/WHOGuidelines";
 
 export default function App() {
   // 1. Core clinical logs state
@@ -95,6 +98,9 @@ export default function App() {
   
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(!localStorage.getItem("vittabp_current_user"));
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+  const [showWHO, setShowWHO] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [authLoading, setAuthLoading] = useState(false);
   
@@ -796,6 +802,18 @@ export default function App() {
     return matchesSearch && matchesType;
   });
 
+  if (showPrivacy) {
+    return <PrivacyPolicy onBack={() => setShowPrivacy(false)} />;
+  }
+
+  if (showTerms) {
+    return <TermsOfUse onBack={() => setShowTerms(false)} />;
+  }
+
+  if (showWHO) {
+    return <WHOGuidelines onBack={() => setShowWHO(false)} />;
+  }
+
   if (!currentUser) {
     return (
       <LandingPage
@@ -803,6 +821,9 @@ export default function App() {
         onRegister={handleRegister}
         onAdminSignIn={() => handleAdminSignIn("deiorbo@gmail.com", "deiorbo")}
         onDemoSignIn={handleDemoSignIn}
+        onShowPrivacy={() => setShowPrivacy(true)}
+        onShowTerms={() => setShowTerms(true)}
+        onShowWHO={() => setShowWHO(true)}
         authLoading={authLoading}
       />
     );
@@ -1369,6 +1390,13 @@ export default function App() {
                     <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">VittaBP v2.5</span>
                  </div>
                  <p className="text-[9px] text-slate-300 max-w-xs mx-auto leading-relaxed">Sua saúde monitorada com precisão clínica e tecnologia de ponta sincronizada.</p>
+                 <div className="flex justify-center space-x-3 text-[10px] text-slate-400 font-bold uppercase tracking-tighter pt-2">
+                    <span onClick={() => setShowPrivacy(true)} className="hover:text-teal-600 transition cursor-pointer">Privacidade</span>
+                    <span>•</span>
+                    <span onClick={() => setShowTerms(true)} className="hover:text-teal-600 transition cursor-pointer">Termos</span>
+                    <span>•</span>
+                    <span onClick={() => setShowWHO(true)} className="hover:text-teal-600 transition cursor-pointer">Diretrizes OMS</span>
+                 </div>
               </div>
             </div>
           </div>
