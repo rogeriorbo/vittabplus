@@ -42,7 +42,7 @@ import {
 import { BloodPressureReading, GlucoseReading, HabitAlert, MySQLConfig as MySQLConfigType, UserProfile, WeightReading, AppUser } from "./types";
 import { exportToCSV, getMealStateLabel } from "./utils/export";
 
-const vittabpLogo = "/src/assets/images/vittabp_white_logo_1779465910916.png";
+import vittabpLogo from "./assets/images/vittabp_white_logo_1779465910916.png";
 
 // Import components
 import AuthModal from "./components/AuthModal";
@@ -533,24 +533,134 @@ export default function App() {
 
   // Authentication Actions
   const handleRegister = async (newUser: AppUser) => {
-     setAllUsers(prev => {
+    setAuthLoading(true);
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newUser)
+      });
+      const data = await response.json();
+      if (data.success && data.user) {
+        setAllUsers(prev => {
+          const next = prev.filter(u => u.email.toLowerCase() !== data.user.email.toLowerCase());
+          next.push(data.user);
+          localStorage.setItem("vittabp_users", JSON.stringify(next));
+          return next;
+        });
+        setCurrentUser(data.user);
+        localStorage.setItem("vittabp_current_user", JSON.stringify(data.user));
+        setIsAuthModalOpen(false);
+
+        // Fetch shared MySQL config and trigger initial sync
+        fetch("/api/mysql/config")
+          .then(res => res.json())
+          .then(cfgData => {
+            if (cfgData.success && cfgData.config && cfgData.config.isConfigured) {
+              setMysqlConfig(cfgData.config);
+              localStorage.setItem(`smartbp_mysql_config_${data.user.email}`, JSON.stringify(cfgData.config));
+              
+              fetch("/api/mysql/sync", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  config: cfgData.config,
+                  bpReadings: [],
+                  glucoseReadings: [],
+                  userId: data.user.email
+                })
+              })
+              .then(res => res.json())
+              .then(syncData => {
+                if (syncData.success) {
+                  setBpReadings(syncData.bpReadings || []);
+                  setGlucoseReadings(syncData.glucoseReadings || []);
+                  localStorage.setItem(`smartbp_bp_readings_${data.user.email}`, JSON.stringify(syncData.bpReadings || []));
+                  localStorage.setItem(`smartbp_glucose_readings_${data.user.email}`, JSON.stringify(syncData.glucoseReadings || []));
+                  localStorage.setItem("smartbp_last_sync_at", new Date().toLocaleString("pt-BR"));
+                }
+              }).catch(err => console.error("Initial registration sync failed:", err));
+            }
+          }).catch(err => console.error("MySQL config fetch failed:", err));
+
+      } else {
+        alert(data.message || "Erro ao realizar o cadastro.");
+      }
+    } catch (err: any) {
+      console.error("Register endpoint offline, fallback to localized user state:", err);
+      setAllUsers(prev => {
         const next = [...prev, newUser];
         localStorage.setItem("vittabp_users", JSON.stringify(next));
         return next;
-    });
-    setCurrentUser(newUser);
-    localStorage.setItem("vittabp_current_user", JSON.stringify(newUser));
-    setIsAuthModalOpen(false);
+      });
+      setCurrentUser(newUser);
+      localStorage.setItem("vittabp_current_user", JSON.stringify(newUser));
+      setIsAuthModalOpen(false);
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
   const handleLogin = async (email: string, password: string) => {
-    const user = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
-    if (user) {
+    setAuthLoading(true);
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await response.json();
+      if (data.success && data.user) {
+        setCurrentUser(data.user);
+        localStorage.setItem("vittabp_current_user", JSON.stringify(data.user));
+        setIsAuthModalOpen(false);
+
+        // Fetch shared MySQL config and trigger initial sync right after login
+        fetch("/api/mysql/config")
+          .then(res => res.json())
+          .then(cfgData => {
+            if (cfgData.success && cfgData.config && cfgData.config.isConfigured) {
+              setMysqlConfig(cfgData.config);
+              localStorage.setItem(`smartbp_mysql_config_${data.user.email}`, JSON.stringify(cfgData.config));
+              
+              fetch("/api/mysql/sync", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  config: cfgData.config,
+                  bpReadings: [],
+                  glucoseReadings: [],
+                  userId: data.user.email
+                })
+              })
+              .then(res => res.json())
+              .then(syncData => {
+                if (syncData.success) {
+                  setBpReadings(syncData.bpReadings || []);
+                  setGlucoseReadings(syncData.glucoseReadings || []);
+                  localStorage.setItem(`smartbp_bp_readings_${data.user.email}`, JSON.stringify(syncData.bpReadings || []));
+                  localStorage.setItem(`smartbp_glucose_readings_${data.user.email}`, JSON.stringify(syncData.glucoseReadings || []));
+                  localStorage.setItem("smartbp_last_sync_at", new Date().toLocaleString("pt-BR"));
+                }
+              }).catch(err => console.error("Initial login sync failed:", err));
+            }
+          }).catch(err => console.error("MySQL config fetch failed:", err));
+
+      } else {
+        alert(data.message || "E-mail ou senha incorretos.");
+      }
+    } catch (err: any) {
+      console.error("Login endpoint offline, fallback to localized query:", err);
+      const user = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+      if (user) {
         setCurrentUser(user);
         localStorage.setItem("vittabp_current_user", JSON.stringify(user));
         setIsAuthModalOpen(false);
-    } else {
-        alert("Credenciais inválidas");
+      } else {
+        alert("Credenciais incorretas ou servidor temporariamente indisponível.");
+      }
+    } finally {
+      setAuthLoading(false);
     }
   };
 
