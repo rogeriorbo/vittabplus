@@ -647,7 +647,7 @@ ${formattedGl.length > 0 ? formattedGl : "Nenhuma medição cadastrada ainda."}
 Formate a resposta em Markdown limpo, sem falar sobre termos internos de TI.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-1.5-flash",
       contents: prompt
     });
 

@@ -88,12 +88,22 @@ export default function App() {
 
   // 6. User authentication state
   const [allUsers, setAllUsers] = useState<AppUser[]>(() => {
-    const cached = localStorage.getItem("vittabp_users");
-    return cached ? JSON.parse(cached) : [];
+    try {
+      const cached = localStorage.getItem("vittabp_users");
+      return cached ? JSON.parse(cached) : [];
+    } catch (e) {
+      console.error("Local storage users parse error:", e);
+      return [];
+    }
   });
   const [currentUser, setCurrentUser] = useState<AppUser | null>(() => {
-    const cached = localStorage.getItem("vittabp_current_user");
-    return cached ? JSON.parse(cached) : null;
+    try {
+      const cached = localStorage.getItem("vittabp_current_user");
+      return cached ? JSON.parse(cached) : null;
+    } catch (e) {
+      console.error("Local storage current user parse error:", e);
+      return null;
+    }
   });
   
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -280,8 +290,12 @@ export default function App() {
 
     // Securely retrieve the exact active user object from registration or login cache
     const activeUser = (() => {
-      const cached = localStorage.getItem("vittabp_current_user");
-      return cached ? JSON.parse(cached) : null;
+      try {
+        const cached = localStorage.getItem("vittabp_current_user");
+        return cached ? JSON.parse(cached) : null;
+      } catch (e) {
+        return null;
+      }
     })();
 
     if (cachedBp) setBpReadings(JSON.parse(cachedBp));
