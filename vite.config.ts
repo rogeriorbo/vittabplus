@@ -12,8 +12,8 @@ export default defineConfig(() => {
       // VitePWA({
       //   registerType: 'autoUpdate',
       //   manifest: {
-      //     name: 'VittaBP - Diário de Saúde',
-      //     short_name: 'VittaBP',
+      //     name: 'VittaBPlus - Diário de Saúde',
+      //     short_name: 'VittaBPlus',
       //     description: 'Monitoramento de pressão arterial, glicose e exercícios.',
       //     theme_color: '#4f46e5',
       //     background_color: '#ffffff',
