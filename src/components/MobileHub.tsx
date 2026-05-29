@@ -609,7 +609,7 @@ export default function MobileHub({ onAddBP, onClearAllRecords, bpReadings, gluc
     const kmText = session.distance > 0 
       ? (session.distance > 1000 ? (session.distance / 1000).toFixed(2) + 'km' : session.distance.toFixed(0) + 'm')
       : '--';
-    const text = `💪 *VittaBP Workout Monitoring* 🚀\n\nAcabei de concluir uma atividade física!\n📌 *Tipo:* ${session.type.toUpperCase()}\n📅 *Data:* ${today}\n⏱️ *Duração:* ${Math.floor(session.duration / 60)} minutos\n🏃‍♂️ *Distância:* ${kmText}\n🔥 *Gasto Calórico:* ${session.kcalEstimate} kcal\n❤️ *Batimentos Médios:* ${session.avgHeartRate} bpm (Pico de ${session.maxHeartRate} bpm)\n📍 *Local:* ${session.locationName || "GPS Ativo"}\n\nE você, já cuidou da sua saúde hoje? Registrado com VittaBP!`;
+    const text = `💪 *VittaBPlus Workout Monitoring* 🚀\n\nAcabei de concluir uma atividade física!\n📌 *Tipo:* ${session.type.toUpperCase()}\n📅 *Data:* ${today}\n⏱️ *Duração:* ${Math.floor(session.duration / 60)} minutos\n🏃‍♂️ *Distância:* ${kmText}\n🔥 *Gasto Calórico:* ${session.kcalEstimate} kcal\n❤️ *Batimentos Médios:* ${session.avgHeartRate} bpm (Pico de ${session.maxHeartRate} bpm)\n📍 *Local:* ${session.locationName || "GPS Ativo"}\n\nE você, já cuidou da sua saúde hoje? Registrado com VittaBPlus!`;
     const encoded = encodeURIComponent(text);
     window.open(`https://api.whatsapp.com/send?text=${encoded}`, '_blank');
   };
@@ -619,7 +619,7 @@ export default function MobileHub({ onAddBP, onClearAllRecords, bpReadings, gluc
     const kmText = session.distance > 0 
       ? (session.distance > 1000 ? (session.distance / 1000).toFixed(2) + 'km' : session.distance.toFixed(0) + 'm')
       : '--';
-    const text = `💪 VittaBP Workout Monitoring 🚀\n\nConcluí um treino de ${session.type.toUpperCase()} em ${today}!\n⏱️ Duração: ${Math.floor(session.duration / 60)} min\n🏃‍♂️ Distância: ${kmText}\n🔥 Gasto: ${session.kcalEstimate} kcal\n❤️ Batimentos cardíacos: ${session.avgHeartRate} bpm de média\n📍 Registrado via GPS em: ${session.locationName || "Prontuário Preventivo"}\n\n#VittaBP #SaudePreventiva #ExercicioFisico`;
+    const text = `💪 VittaBPlus Workout Monitoring 🚀\n\nConcluí um treino de ${session.type.toUpperCase()} em ${today}!\n⏱️ Duração: ${Math.floor(session.duration / 60)} min\n🏃‍♂️ Distância: ${kmText}\n🔥 Gasto: ${session.kcalEstimate} kcal\n❤️ Batimentos cardíacos: ${session.avgHeartRate} bpm de média\n📍 Registrado via GPS em: ${session.locationName || "Prontuário Preventivo"}\n\n#VittaBPlus #SaudePreventiva #ExercicioFisico`;
     
     navigator.clipboard.writeText(text).then(() => {
       alert("Texto de resumo copiado para a área de transferência! Cole no seu Status do WhatsApp, Stories ou rede social favorita.");
@@ -631,11 +631,11 @@ export default function MobileHub({ onAddBP, onClearAllRecords, bpReadings, gluc
     const kmText = session.distance > 0 
       ? (session.distance > 1000 ? (session.distance / 1000).toFixed(2) + 'km' : session.distance.toFixed(0) + 'm')
       : '--';
-    const textStr = `Treino de ${session.type.toUpperCase()} concluído! Duração: ${Math.floor(session.duration / 60)}min. Distância: ${kmText}. Calorias: ${session.kcalEstimate}kcal. Batimentos cardíacos médios: ${session.avgHeartRate}bpm. Registrado via GPS pelo VittaBP.`;
+    const textStr = `Treino de ${session.type.toUpperCase()} concluído! Duração: ${Math.floor(session.duration / 60)}min. Distância: ${kmText}. Calorias: ${session.kcalEstimate}kcal. Batimentos cardíacos médios: ${session.avgHeartRate}bpm. Registrado via GPS pelo VittaBPlus.`;
     
     if (navigator.share) {
       navigator.share({
-        title: 'VittaBP Treino Concluído!',
+        title: 'VittaBPlus Treino Concluído!',
         text: textStr,
         url: window.location.href
       }).catch(err => {
@@ -691,7 +691,7 @@ ${doctorName ? `Olá, Dr(a). ${doctorName}!` : 'Olá!'} Seguem minhas métricas 
 • Último teste inserido: *${lastGl}*
 ${workoutSummary}
 
-_Relatório expedido localmente através do app responsivo VittaBP. Sessão sincronizada com segurança._`;
+_Relatório expedido localmente através do app responsivo VittaBPlus. Sessão sincronizada com segurança._`;
   };
 
   const handleCopyReport = () => {

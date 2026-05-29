@@ -16,7 +16,7 @@ export default function TermsOfUse({ onBack }: TermsOfUseProps) {
               <FileText className="w-5 h-5" />
             </div>
             <div>
-              <span className="font-extrabold tracking-tight text-slate-950 text-base block leading-none">VittaBP</span>
+              <span className="font-extrabold tracking-tight text-slate-950 text-base block leading-none">VittaBPlus</span>
               <span className="text-[9px] uppercase tracking-wider font-extrabold text-indigo-600 block mt-0.5">Termos de Uso</span>
             </div>
           </div>
@@ -41,7 +41,7 @@ export default function TermsOfUse({ onBack }: TermsOfUseProps) {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-teal-600">Responsabilidade Médica.</span>
             </h1>
             <p className="text-sm text-slate-500 leading-relaxed max-w-xl mx-auto">
-              Ao utilizar o VittaBP, você concorda em seguir estas diretrizes para garantir uma experiência segura e eficaz no monitoramento da sua saúde.
+              Ao utilizar o VittaBPlus, você concorda em seguir estas diretrizes para garantir uma experiência segura e eficaz no monitoramento da sua saúde.
             </p>
           </section>
 
@@ -56,7 +56,7 @@ export default function TermsOfUse({ onBack }: TermsOfUseProps) {
               </div>
               <div className="text-sm text-slate-600 leading-relaxed space-y-4 p-5 bg-amber-50/50 rounded-2xl border border-amber-100">
                 <p className="font-bold text-amber-900">
-                  CRÍTICO: O VittaBP NÃO é um dispositivo médico nem um substituto para aconselhamento médico profissional.
+                  CRÍTICO: O VittaBPlus NÃO é um dispositivo médico nem um substituto para aconselhamento médico profissional.
                 </p>
                 <ul className="list-disc pl-5 space-y-2 marker:text-amber-500">
                   <li>Todas as análises geradas pelo "Laudo IA" são baseadas em padrões estatísticos e diretrizes gerais de saúde.</li>
@@ -90,7 +90,7 @@ export default function TermsOfUse({ onBack }: TermsOfUseProps) {
               </div>
               <div className="text-sm text-slate-600 leading-relaxed space-y-3">
                 <p>
-                  O design, marca e algoritmos do VittaBP são de propriedade exclusiva da <strong>Déio Informática</strong>. O uso comercial não autorizado do software é estritamente proibido.
+                  O design, marca e algoritmos do VittaBPlus são de propriedade exclusiva da <strong>Déio Informática</strong>. O uso comercial não autorizado do software é estritamente proibido.
                 </p>
               </div>
             </section>
@@ -135,7 +135,7 @@ export default function TermsOfUse({ onBack }: TermsOfUseProps) {
       <footer className="bg-white border-t border-slate-100 py-10 px-4 mt-auto">
         <div className="max-w-4xl mx-auto text-center space-y-2">
           <p className="text-[11px] text-slate-400 font-bold">
-            &copy; {new Date().getFullYear()} VittaBP Diário Preventivo - Déio Informática.
+            &copy; {new Date().getFullYear()} VittaBPlus Diário Preventivo - Déio Informática.
           </p>
           <p className="text-[10px] text-slate-350 italic">
             Monitoramento preventivo inteligente.

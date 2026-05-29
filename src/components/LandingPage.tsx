@@ -108,19 +108,20 @@ export default function LandingPage({ onLogin, onRegister, onDemoSignIn, onShowP
       <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 md:py-14 grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-14 items-center">
         
         {/* Left Hand: Product Pitch & Presentation */}
-        <div className="lg:col-span-7 space-y-6 md:space-y-8 flex flex-col items-center lg:items-start text-center lg:text-left">
+        <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-4 md:space-y-6">
           <div className="space-y-2 md:space-y-3">
-            <h1 className="text-3xl md:text-5xl font-black text-slate-900 leading-[1.1] tracking-tight">
-              <span className="text-teal-600">VittaBPlus:</span> Seu diário clínico e <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-indigo-600">prontuário preventivo</span> inteligente.
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 leading-[1.05] tracking-tight">
+              <span className="text-teal-600 block mb-2">VittaBPlus</span>
+              Seu diário clínico e <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-indigo-600">prontuário preventivo</span>.
             </h1>
             
-            <p className="text-sm md:text-base text-slate-500 leading-relaxed max-w-xl mx-auto lg:mx-0">
-              Monitore de forma ágil e interativa sinais vitais como pressão arterial e glicemia, com laudos preventivos enriquecidos com IA do Google Gemini.
+            <p className="text-sm md:text-lg text-slate-500 leading-relaxed max-w-xl mx-auto lg:mx-0">
+              Monitore seus sinais vitais com precisão. Uma central inteligente para sua pressão arterial e glicemia, com laudos preventivos apoiados por IA.
             </p>
           </div>
 
           {/* Core App Feature Blocks */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl lg:max-w-none">
             <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-start space-x-3.5 text-left">
               <div className="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600 shrink-0">
                 <Activity className="w-5 h-5" />

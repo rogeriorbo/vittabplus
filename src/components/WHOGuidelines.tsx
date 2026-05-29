@@ -16,7 +16,7 @@ export default function WHOGuidelines({ onBack }: WHOGuidelinesProps) {
               <BookOpen className="w-5 h-5" />
             </div>
             <div>
-              <span className="font-extrabold tracking-tight text-slate-950 text-base block leading-none">VittaBP</span>
+              <span className="font-extrabold tracking-tight text-slate-950 text-base block leading-none">VittaBPlus</span>
               <span className="text-[9px] uppercase tracking-wider font-extrabold text-sky-600 block mt-0.5">Diretrizes da OMS</span>
             </div>
           </div>
@@ -44,7 +44,7 @@ export default function WHOGuidelines({ onBack }: WHOGuidelinesProps) {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-teal-600">Saúde Cardiovascular.</span>
             </h1>
             <p className="text-sm text-slate-500 leading-relaxed max-w-2xl mx-auto">
-              O VittaBP utiliza como referência os parâmetros estabelecidos pela Organização Mundial da Saúde (OMS) e pela Sociedade Brasileira de Cardiologia (SBC) para classificar seus registros.
+              O VittaBPlus utiliza como referência os parâmetros estabelecidos pela Organização Mundial da Saúde (OMS) e pela Sociedade Brasileira de Cardiologia (SBC) para classificar seus registros.
             </p>
           </section>
 
@@ -178,7 +178,7 @@ export default function WHOGuidelines({ onBack }: WHOGuidelinesProps) {
       <footer className="bg-white border-t border-slate-100 py-10 px-4 mt-auto">
         <div className="max-w-4xl mx-auto text-center space-y-3">
           <p className="text-[11px] text-slate-400 font-bold">
-            &copy; {new Date().getFullYear()} VittaBP Diário Preventivo - Déio Informática.
+            &copy; {new Date().getFullYear()} VittaBPlus Diário Preventivo - Déio Informática.
           </p>
           <p className="text-[10px] text-slate-350 max-w-md mx-auto leading-relaxed">
             As informações aqui contidas são apenas para fins educacionais e baseiam-se em publicações oficiais da OMS (WHO). Consulte sempre seu médico de confiança.

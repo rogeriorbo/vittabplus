@@ -10,7 +10,7 @@ import axios from "axios";
 dotenv.config();
 
 const app = express();
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = 3000;
 
 app.use(express.json());
 
@@ -634,7 +634,7 @@ app.post("/api/gemini/insights", async (req, res) => {
       `- ${new Date(g.measuredAt).toLocaleString('pt-BR')}: Glicose ${g.value} mg/dL, Estado: ${g.mealState} (${g.tags.join(", ") || "Sem tags"}). ${g.notes || ""}`
     ).join("\n");
 
-    const prompt = `Você é um analista clínico assistente e especialista de saúde virtual integrado ao aplicativo de diário clínico VittaBP.
+    const prompt = `Você é um analista clínico assistente e especialista de saúde virtual integrado ao aplicativo de diário clínico VittaBPlus.
 Seu objetivo é analisar os logs mais recentes de pressão arterial e glicose do usuário e fornecer um resumo inteligível, destacando padrões preocupantes (como picos de pressão ou glicose), sugestões de hábitos preventivos e encorajamento pessoal de forma acolhedora em português.
 
 **IMPORTANTE**: 
@@ -748,7 +748,7 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`VittaBP Server running on http://0.0.0.0:${PORT}`);
+    console.log(`VittaBPlus Server running on http://0.0.0.0:${PORT}`);
   });
 }
 

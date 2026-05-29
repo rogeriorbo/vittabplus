@@ -41,7 +41,7 @@ export default function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-indigo-600">nosso compromisso vital.</span>
             </h1>
             <p className="text-sm text-slate-500 leading-relaxed max-w-xl mx-auto">
-              Nós entendemos a sensibilidade dos seus dados de saúde. Por isso, construímos o VittaBP com transparência e segurança desde o primeiro código.
+              Nós entendemos a sensibilidade dos seus dados de saúde. Por isso, construímos o VittaBPlus com transparência e segurança desde o primeiro código.
             </p>
             <div className="inline-flex items-center space-x-2 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-[10px] font-black border border-emerald-100">
               <Lock className="w-3 h-3" />
@@ -60,7 +60,7 @@ export default function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
               </div>
               <div className="text-sm text-slate-600 leading-relaxed space-y-3">
                 <p>
-                  O VittaBP coleta exclusivamente os dados necessários para o monitoramento clínico preventivo, incluindo:
+                  O VittaBPlus coleta exclusivamente os dados necessários para o monitoramento clínico preventivo, incluindo:
                 </p>
                 <ul className="list-disc pl-5 space-y-2 marker:text-teal-500">
                   <li><strong>Informações de Cadastro:</strong> Nome, sobrenome, data de nascimento e e-mail.</li>
@@ -133,7 +133,7 @@ export default function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
                 <h2 className="text-base font-black text-slate-800 text-teal-800">Compromisso Ético</h2>
               </div>
               <p className="text-sm text-slate-600 leading-relaxed italic">
-                "Não comercializamos dados de saúde. O VittaBP nasceu para ser uma ferramenta de empoderamento do paciente e suporte à medicina preventiva, não um produto de extração de dados."
+                "Não comercializamos dados de saúde. O VittaBPlus nasceu para ser uma ferramenta de empoderamento do paciente e suporte à medicina preventiva, não um produto de extração de dados."
               </p>
             </section>
           </div>

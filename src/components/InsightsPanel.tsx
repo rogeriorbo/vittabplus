@@ -59,7 +59,7 @@ export default function InsightsPanel({ bpReadings, glucoseReadings, profile }: 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
-    doc.text("Relatório VittaBP - Copiloto Clínico", 15, 14);
+    doc.text("Relatório VittaBPlus - Copiloto Clínico", 15, 14);
     
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
@@ -182,7 +182,7 @@ export default function InsightsPanel({ bpReadings, glucoseReadings, profile }: 
             <div className="border-b border-white/10 pb-2 mb-2 flex items-center justify-between">
               <span className="flex items-center space-x-1.5 text-teal-400 font-bold uppercase tracking-wider text-[10px]">
                 <Award className="w-3.5 h-3.5" />
-                <span>VittaBP AI Relatório de Tendências Baseado no Diário</span>
+                <span>VittaBPlus AI Relatório de Tendências Baseado no Diário</span>
               </span>
             </div>
             {/* Simple Markdown Render parser */}

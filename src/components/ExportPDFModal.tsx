@@ -105,7 +105,7 @@ export default function ExportPDFModal({ isOpen, onClose, bpReadings, glucoseRea
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(layoutMode === "compact" ? 17 : 22);
-    doc.text("VittaBP", 15, layoutMode === "compact" ? 10 : 17);
+    doc.text("VittaBPlus", 15, layoutMode === "compact" ? 10 : 17);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(layoutMode === "compact" ? 8 : 9);
@@ -131,7 +131,7 @@ export default function ExportPDFModal({ isOpen, onClose, bpReadings, glucoseRea
     });
     doc.text(`Emitido em: ${dateOfReport}`, pageWidth - 15, layoutMode === "compact" ? 10 : 15, { align: "right" });
     doc.text(
-      layoutMode === "compact" ? "Modelo: Resumido 1-Pág" : "Versão Segura: v2.5 Prontuário", 
+      layoutMode === "compact" ? "Modelo: Resumido 1-Pág" : "Versão Segura: v3.0 Prontuário", 
       pageWidth - 15, 
       layoutMode === "compact" ? 14 : 21, 
       { align: "right" }
@@ -543,7 +543,7 @@ export default function ExportPDFModal({ isOpen, onClose, bpReadings, glucoseRea
     doc.setFontSize(layoutMode === "compact" ? 6 : 7);
     doc.setTextColor(grayText[0], grayText[1], grayText[2]);
     const disclaimerLines = [
-      "Este relatório é um compilado seguro consolidado do histórico clínico pessoal de medições estáticas mantidas de forma soberana pelo usuário do VittaBP.",
+      "Este relatório é um compilado seguro consolidado do histórico clínico pessoal de medições estáticas mantidas de forma soberana pelo usuário do VittaBPlus.",
       "As informações geradas servem apenas para auxílio estático de relatórios de tendências e nunca substituem, anulam, interferem ou sobressaem o parecer",
       "médico profissional de seu cardiologista, clínico geral ou enfermeiro de medicina corporativa."
     ];
@@ -559,7 +559,7 @@ export default function ExportPDFModal({ isOpen, onClose, bpReadings, glucoseRea
 
     // Save the PDF locally for browser convenient viewing
     const nameSlug = profile.name ? profile.name.trim().toLowerCase().replace(/\s+/g, "_") : "paciente";
-    doc.save(`vittabp_ficha_resumida_${nameSlug}.pdf`);
+    doc.save(`vittabplus_ficha_resumida_${nameSlug}.pdf`);
     onClose();
   };
 
@@ -579,7 +579,7 @@ export default function ExportPDFModal({ isOpen, onClose, bpReadings, glucoseRea
             </div>
             <div>
               <h3 className="font-extrabold text-sm sm:text-base tracking-tight text-white leading-none">Exportar PDF Clínico</h3>
-              <p className="text-[10px] text-teal-300 font-medium mt-1 font-mono tracking-wide uppercase">PRONTUÁRIO VITTABP V2.5</p>
+              <p className="text-[10px] text-teal-300 font-medium mt-1 font-mono tracking-wide uppercase">PRONTUÁRIO VITTABPLUS V3.0</p>
             </div>
           </div>
           <button onClick={onClose} className="p-1 px-2.5 hover:bg-slate-800 rounded-xl transition text-slate-300">

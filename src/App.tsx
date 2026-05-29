@@ -1133,7 +1133,7 @@ export default function App() {
                           <span>Tema Visual do Aplicativo</span>
                         </span>
                         <p className="text-[10px] sm:text-xs text-slate-500 leading-normal">
-                          Personalize as cores de destaque e a aparência geral do VittaBP ao seu gosto.
+                          Personalize as cores de destaque e a aparência geral do VittaBPlus ao seu gosto.
                         </p>
                       </div>
 
