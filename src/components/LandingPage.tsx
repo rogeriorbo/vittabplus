@@ -21,7 +21,6 @@ import {
 interface LandingPageProps {
   onLogin: (email: string, password: string) => Promise<void> | void;
   onRegister: (user: AppUser) => Promise<void> | void;
-  onAdminSignIn: () => void;
   onDemoSignIn: () => void;
   onShowPrivacy: () => void;
   onShowTerms: () => void;
@@ -29,7 +28,7 @@ interface LandingPageProps {
   authLoading?: boolean;
 }
 
-export default function LandingPage({ onLogin, onRegister, onAdminSignIn, onDemoSignIn, onShowPrivacy, onShowTerms, onShowWHO, authLoading = false }: LandingPageProps) {
+export default function LandingPage({ onLogin, onRegister, onDemoSignIn, onShowPrivacy, onShowTerms, onShowWHO, authLoading = false }: LandingPageProps) {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [showPassword, setShowPassword] = useState(false);
 
@@ -101,14 +100,6 @@ export default function LandingPage({ onLogin, onRegister, onAdminSignIn, onDemo
           </div>
           
           <div className="flex items-center space-x-3">
-            <button 
-              onClick={onAdminSignIn}
-              className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100/80 text-emerald-700 text-[10px] sm:text-xs font-bold rounded-lg transition-all border border-emerald-100 flex items-center space-x-1"
-            >
-              <UserCheck className="w-3.5 h-3.5 shrink-0" />
-              <span className="hidden sm:inline">Identificação Administrativa</span>
-              <span className="inline sm:hidden">Admin</span>
-            </button>
           </div>
         </div>
       </header>

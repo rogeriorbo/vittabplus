@@ -116,30 +116,8 @@ export default function App() {
   
   const currentUserEmail = currentUser ? currentUser.email : "";
 
-  // Automated Admin identification shortcut
-  const handleAdminSignIn = (email = "deiorbo@gmail.com", name = "deiorbo") => {
-    let user = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
-    if (!user) {
-      user = {
-        id: 'u-admin-' + Date.now(),
-        name,
-        surname: 'Administrador',
-        birthDate: '1988-06-15',
-        email,
-        password: 'admin-simulated',
-        height: 175,
-        weight: 75
-      };
-      setAllUsers(prev => {
-        const next = [...prev, user!];
-        localStorage.setItem("vittabp_users", JSON.stringify(next));
-        return next;
-      });
-    }
-    setCurrentUser(user);
-    localStorage.setItem("vittabp_current_user", JSON.stringify(user));
-    setIsAuthModalOpen(false);
-  };
+  
+  // Actions
 
   // Automated anonymous patient demonstration shortcut (Bypass)
   const handleDemoSignIn = () => {
@@ -833,7 +811,6 @@ export default function App() {
       <LandingPage
         onLogin={handleLogin}
         onRegister={handleRegister}
-        onAdminSignIn={() => handleAdminSignIn("deiorbo@gmail.com", "deiorbo")}
         onDemoSignIn={handleDemoSignIn}
         onShowPrivacy={() => setShowPrivacy(true)}
         onShowTerms={() => setShowTerms(true)}
@@ -1251,13 +1228,6 @@ export default function App() {
                           </p>
                         </div>
                       </div>
-                      
-                      <button
-                        onClick={() => handleAdminSignIn("deiorbo@gmail.com", "deiorbo")}
-                        className="px-2.5 sm:px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 text-[10px] sm:text-[11px] rounded-lg font-bold transition cursor-pointer shrink-0 w-full sm:w-auto"
-                      >
-                        Identificar Administrador
-                      </button>
                     </div>
                   )}
                 </div>
