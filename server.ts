@@ -14,6 +14,11 @@ const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json());
 
+// Basic health check
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", environment: process.env.NODE_ENV || "development", port: PORT });
+});
+
 const MYSQL_CONFIG_FILE = path.join(process.cwd(), "mysql_config.json");
 
 async function getSavedMysqlConfig() {
